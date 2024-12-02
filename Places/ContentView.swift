@@ -9,19 +9,13 @@ import SwiftUI
 import MapKit
 import SwiftData
 
-
 struct ContentView: View {
-
     @AppStorage("tint") private var tint: Tint = .blue
 
     @Bindable var vm: PlacesViewModel
     @Bindable var language: LanguageManager
 
     @Environment(\.modelContext) private var modelContext
-
-    @State private var selectedStartDate = Date()
-    @State private var selectedEndDate = Date()
-    @State private var selectedAddress: String = ""
 
     @Query(sort: \Place.startDate, order: .forward) private var savedAddresses: [Place]
 
@@ -30,73 +24,81 @@ struct ContentView: View {
             VStack {
                 // Address Search
                 TextField("Search for address", text: $vm.searchQuery)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textFieldStyle(.roundedBorder)
                     .padding()
-                    .onSubmit {
-                        vm.searchAddress(query: vm.searchQuery)
-                    }
+                    .autocorrectionDisabled()
 
-                List(vm.searchResults, id: \.self) { item in
-                    Button(action: {
-                        selectedAddress = item.placemark.title ?? "Unknown Address"
-                    }) {
-                        Text(item.placemark.title ?? "Unknown Address")
-                    }
-                }
-
-                // Date Pickers
-                VStack {
-                    DatePicker("Start Date", selection: $selectedStartDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: $selectedEndDate, displayedComponents: .date)
-                }
-                .padding(40)
-
-
-                // Add Address Button
-                Button(
-                    action: {
-                        if !selectedAddress.isEmpty {
-                            let newAddress = Place(
-                                addressLine: selectedAddress,
-                                startDate: selectedStartDate,
-                                endDate: selectedEndDate
-                            )
-                        modelContext.insert(newAddress)
-                        selectedAddress = ""
-                    }
-                }) {
-                    Text("Save Address")
+                // Show ProgressView while searching
+                if vm.isSearching {
+                    ProgressView("Searching for addresses...")
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                } else {
+                    // Search Results
+                    List(vm.searchResults) { result in
+                        Button(action: {
+                            vm.selectedSearchResult = result
+                            vm.isPresentingPlaceTypeView = true
+                            vm.searchQuery = ""
+                            vm.searchResults = []
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(result.title)
+                                    .font(.headline)
+
+                                Text(result.detailedAddress ?? "")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
                 }
-                .padding()
-                .disabled(selectedAddress.isEmpty)
 
                 // Saved Addresses List
                 List(savedAddresses) { address in
                     VStack(alignment: .leading) {
                         Text(address.addressLine)
                             .font(.headline)
-                        Text("From: \(address.startDate, style: .date) To: \(address.endDate, style: .date)")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+
+                        HStack {
+                            Image(systemName: address.placeType.sfSymbolName)
+                                .foregroundColor(.blue)
+                            Text(address.placeType.rawValue)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        if address.placeType == .residentialTenancy, let startDate = address.startDate, let endDate = address.endDate {
+                            Text("From: \(startDate, style: .date) To: \(endDate, style: .date)")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text(address.durationString)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
 
                 Spacer()
             }
             .navigationTitle("Places")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        SettingsView(language: language)
-                    } label: {
-                        Image(systemName: "gearshape.fill")
+            .sheet(isPresented: $vm.isPresentingPlaceTypeView) {
+                if let searchResult = vm.selectedSearchResult {
+                    PlaceTypeView(searchResult: searchResult) { placeType, startDate, endDate in
+                        // Save the Place into SwiftData
+                        let newPlace = Place(
+                            addressLine: searchResult.detailedAddress ?? "",
+                            placeType: placeType,
+                            startDate: startDate,
+                            endDate: endDate
+                        )
+                        modelContext.insert(newPlace)
+                        // Clear the selected search result
+                        vm.selectedSearchResult = nil
                     }
-                    .tint(tint.color)
+                } else {
+                    // Optionally handle the case where selectedSearchResult is nil
+                    Text("No place selected")
                 }
             }
         }

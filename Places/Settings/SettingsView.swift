@@ -38,6 +38,7 @@ struct SettingsView: View {
             feedbackSection
         }
         .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbarRole(.editor)
         .sensoryFeedback(.selection, trigger: tint)
         .environment(\.locale, .init(identifier: language.language.key))
