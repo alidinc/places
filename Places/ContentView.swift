@@ -16,91 +16,90 @@ struct ContentView: View {
     @Bindable var language: LanguageManager
 
     @Environment(\.modelContext) private var modelContext
-
-    @Query(sort: \Place.startDate, order: .forward) private var savedAddresses: [Place]
+    @FocusState private var focused: Bool
+    @State private var isPresentingAddManualAddress = false
+    @Query(sort: \Place.endDate, order: .forward) private var savedAddresses: [Place]
 
     var body: some View {
         NavigationStack {
-            VStack {
-                // Address Search
-                TextField("Search for address", text: $vm.searchQuery)
-                    .textFieldStyle(.roundedBorder)
-                    .padding()
-                    .autocorrectionDisabled()
-
-                // Show ProgressView while searching
-                if vm.isSearching {
-                    ProgressView("Searching for addresses...")
-                        .padding()
-                } else {
-                    // Search Results
-                    List(vm.searchResults) { result in
-                        Button(action: {
-                            vm.selectedSearchResult = result
-                            vm.isPresentingPlaceTypeView = true
-                            vm.searchQuery = ""
-                            vm.searchResults = []
-                        }) {
-                            VStack(alignment: .leading) {
-                                Text(result.title)
-                                    .font(.headline)
-
-                                Text(result.detailedAddress ?? "")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.vertical, 4)
-                        }
-                    }
+            ZStack {
+                VStack {
+                    HeaderView()
+                    SavedPlaces
                 }
 
-                // Saved Addresses List
-                List(savedAddresses) { address in
-                    VStack(alignment: .leading) {
-                        Text(address.addressLine)
-                            .font(.headline)
-
-                        HStack {
-                            Image(systemName: address.placeType.sfSymbolName)
-                                .foregroundColor(.blue)
-                            Text(address.placeType.rawValue)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        
-                        if address.placeType == .residentialTenancy, let startDate = address.startDate, let endDate = address.endDate {
-                            Text("From: \(startDate, style: .date) To: \(endDate, style: .date)")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            Text(address.durationString)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                Spacer()
+                Color.black
+                    .opacity(vm.isSearching ? 0.75 : 0)
+                    .ignoresSafeArea()
             }
-            .navigationTitle("Places")
+            .gradientBackground()
+            .ignoresSafeArea(edges: .bottom)
+            .safeAreaInset(edge: .bottom) {
+                SearchView(vm: vm, showAddManual: $isPresentingAddManualAddress)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SettingsView(language: language)
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                    }
+                    .tint(tint.color)
+                }
+            }
+            .sheet(isPresented: $isPresentingAddManualAddress) { AddPlaceManualView() }
             .sheet(isPresented: $vm.isPresentingPlaceTypeView) {
                 if let searchResult = vm.selectedSearchResult {
-                    PlaceTypeView(searchResult: searchResult) { placeType, startDate, endDate in
-                        // Save the Place into SwiftData
-                        let newPlace = Place(
-                            addressLine: searchResult.detailedAddress ?? "",
-                            placeType: placeType,
-                            startDate: startDate,
-                            endDate: endDate
-                        )
-                        modelContext.insert(newPlace)
-                        // Clear the selected search result
+                    AddPlaceView(searchResult: searchResult) { place in
+                        modelContext.insert(place)
                         vm.selectedSearchResult = nil
                     }
                 } else {
-                    // Optionally handle the case where selectedSearchResult is nil
                     Text("No place selected")
                 }
             }
+        }
+    }
+
+    private var SearchTextField: some View {
+        HStack(spacing: 10) {
+            TextField("Search for address", text: $vm.searchQuery)
+                .textFieldStyle(.plain)
+                .padding()
+                .padding(.trailing, 40)
+                .focused($focused)
+                .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
+                .autocorrectionDisabled()
+                .showClearButton($vm.searchQuery, action: { vm.searchQuery = "" })
+
+            Button {
+                isPresentingAddManualAddress = true
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(tint.color.gradient)
+            }
+        }
+        .padding()
+    }
+
+    private var SavedPlaces: some View {
+        List {
+            ForEach(savedAddresses) { address in
+                PlaceRow(address: address)
+            }
+            .onDelete(perform: deleteAddress(at:))
+            .listRowInsets(.init(top: 14, leading: 14, bottom: 14, trailing: 14))
+            .listRowBackground(Color(.secondarySystemBackground))
+        }
+        .scrollContentBackground(.hidden)
+    }
+
+    private func deleteAddress(at offsets: IndexSet) {
+        for index in offsets {
+            let address = savedAddresses[index]
+            modelContext.delete(address)
+            try? modelContext.save()
         }
     }
 }

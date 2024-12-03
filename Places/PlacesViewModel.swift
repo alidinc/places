@@ -50,6 +50,7 @@ class PlacesViewModel {
             return
         }
 
+        isSearching = true
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = query
         let search = MKLocalSearch(request: request)
@@ -64,36 +65,34 @@ class PlacesViewModel {
                 let coordinate = mapItem.placemark.coordinate
                 let title = mapItem.name ?? "Unknown Place"
 
-                // Create a placeholder SearchResult
-                let searchResult = SearchResult(coordinate: coordinate, title: title)
-
-                let coord = searchResult.coordinate
-                if let detailedAddress = await reverseGeocode(coordinate: coord) {
-                    searchResult.detailedAddress = detailedAddress
-                } else {
-                    searchResult.detailedAddress = "Address not found"
+                // Perform reverse geocoding
+                if let placemark = await reverseGeocode(coordinate: coordinate) {
+                    let detailedAddress = formatAddress(from: placemark)
+                    // Create SearchResult with placemark
+                    let searchResult = SearchResult(
+                        coordinate: coordinate,
+                        title: title,
+                        detailedAddress: detailedAddress,
+                        placemark: placemark
+                    )
+                    newSearchResults.append(searchResult)
                 }
-
-                newSearchResults.append(searchResult)
             }
 
             self.searchResults = newSearchResults
-
+            self.isSearching = false
         } catch {
             print("Search error: \(error.localizedDescription)")
+            self.searchResults = []
         }
     }
 
-    func reverseGeocode(coordinate: CLLocationCoordinate2D) async -> String? {
+    func reverseGeocode(coordinate: CLLocationCoordinate2D) async -> CLPlacemark? {
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
 
         do {
             let placemarks = try await geocoder.reverseGeocodeLocation(location)
-            if let placemark = placemarks.first {
-                return formatAddress(from: placemark)
-            } else {
-                return nil
-            }
+            return placemarks.first
         } catch {
             print("Reverse geocoding error: \(error.localizedDescription)")
             return nil
@@ -113,7 +112,7 @@ class PlacesViewModel {
         if let thoroughfare = placemark.thoroughfare {
             firstLineComponents.append(thoroughfare)
         }
-        
+
         if !firstLineComponents.isEmpty {
             addressLines.append(firstLineComponents.joined(separator: " "))
         }
@@ -122,7 +121,7 @@ class PlacesViewModel {
         if let locality = placemark.locality {
             addressLines.append(locality)
         }
-
+        
         if let administrativeArea = placemark.administrativeArea {
             addressLines.append(administrativeArea)
         }

@@ -9,10 +9,11 @@ import Foundation
 import SwiftData
 
 enum PlaceType: String, Codable, CaseIterable {
-    case residentialTenancy = "Residential Tenancy"
-    case placeToVisit = "Place to Visit"
 
-    var sfSymbolName: String {
+    case residentialTenancy = "Residential"
+    case placeToVisit = "Place"
+
+    var icon: String {
         switch self {
         case .residentialTenancy:
             return "house.fill"
@@ -25,12 +26,20 @@ enum PlaceType: String, Codable, CaseIterable {
 @Model
 class Place: Identifiable {
     var id = UUID()
+    var apartmentNumber: String
     var addressLine: String
     var placeType: PlaceType
     var startDate: Date?
     var endDate: Date?
 
-    init(addressLine: String, placeType: PlaceType, startDate: Date? = nil, endDate: Date? = nil) {
+    init(
+        addressLine: String,
+        apartmentNumber: String,
+        placeType: PlaceType,
+        startDate: Date? = nil,
+        endDate: Date? = nil
+    ) {
+        self.apartmentNumber = apartmentNumber
         self.addressLine = addressLine
         self.placeType = placeType
         self.startDate = startDate
