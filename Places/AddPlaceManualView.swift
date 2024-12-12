@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AddPlaceManualView: View {
+
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
 
@@ -21,7 +22,7 @@ struct AddPlaceManualView: View {
     @State private var country = ""
 
     // Place type and dates
-    @State private var selectedPlaceType: PlaceType = .residentialTenancy
+    @State private var selectedPlaceType: PlaceType = .residential
     @State private var startDate = Date()
     @State private var endDate = Date()
 
@@ -44,23 +45,9 @@ struct AddPlaceManualView: View {
                     TextField("Country", text: $country)
                 }
 
-                // Place Type Section
-                Section(header: Text("Place Type")) {
-                    Picker("Select Place Type", selection: $selectedPlaceType) {
-                        ForEach(PlaceType.allCases, id: \.self) { type in
-                            Label(type.rawValue, systemImage: type.icon)
-                                .tag(type)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
-
-                // Tenancy Dates Section
-                if selectedPlaceType == .residentialTenancy {
-                    Section(header: Text("Tenancy Dates")) {
-                        DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
-                    }
+                Section(header: Text("Dates")) {
+                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                    DatePicker("End Date", selection: $endDate, displayedComponents: .date)
                 }
             }
             .navigationTitle("Add Address Manually")
@@ -85,8 +72,10 @@ struct AddPlaceManualView: View {
     }
 
     private func isFormValid() -> Bool {
-        // Basic validation: Address Line 1, City, and Country are required
-        return !addressLine1.isEmpty && !city.isEmpty && !country.isEmpty && (selectedPlaceType == .residentialTenancy ? startDate <= endDate : true)
+        !addressLine1.isEmpty &&
+        !city.isEmpty &&
+        !country.isEmpty &&
+        (selectedPlaceType == .residential ? startDate <= endDate : true)
     }
 
     private func savePlace() {
@@ -96,21 +85,19 @@ struct AddPlaceManualView: View {
             return
         }
 
-        // Combine address fields into a single address line
-        let addressComponents = [addressLine1, addressLine2, city, state, postalCode, country]
-        let fullAddress = addressComponents.filter { !$0.isEmpty }.joined(separator: ", ")
-
-        // Create new Place
-        let newPlace = Place(
-            addressLine: fullAddress,
+        let place = Place(
             apartmentNumber: apartmentNumber,
-            placeType: selectedPlaceType,
-            startDate: selectedPlaceType == .residentialTenancy ? startDate : nil,
-            endDate: selectedPlaceType == .residentialTenancy ? endDate : nil
+            addressLine1: addressLine1,
+            addressLine2: addressLine2,
+            city: city,
+            postcode: postalCode,
+            country: country,
+            placeType: .residential,
+            startDate: startDate,
+            endDate: endDate
         )
 
-        // Save to model context
-        modelContext.insert(newPlace)
+        modelContext.insert(place)
         dismiss()
     }
 }

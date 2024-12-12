@@ -10,14 +10,14 @@ import SwiftData
 
 enum PlaceType: String, Codable, CaseIterable {
 
-    case residentialTenancy = "Residential"
-    case placeToVisit = "Place"
+    case residential = "Residential"
+    case place = "Place"
 
     var icon: String {
         switch self {
-        case .residentialTenancy:
+        case .residential:
             return "house.fill"
-        case .placeToVisit:
+        case .place:
             return "mappin.and.ellipse"
         }
     }
@@ -26,51 +26,102 @@ enum PlaceType: String, Codable, CaseIterable {
 @Model
 class Place: Identifiable {
     var id = UUID()
+    var name: String?
     var apartmentNumber: String
-    var addressLine: String
+    var addressLine1: String
+    var addressLine2: String
+    var city: String
+    var postcode: String
+    var country: String
     var placeType: PlaceType
     var startDate: Date?
     var endDate: Date?
 
     init(
-        addressLine: String,
+        id: UUID = UUID(),
+        name: String? = nil,
         apartmentNumber: String,
+        addressLine1: String,
+        addressLine2: String,
+        city: String,
+        postcode: String,
+        country: String,
         placeType: PlaceType,
         startDate: Date? = nil,
         endDate: Date? = nil
     ) {
+        self.id = id
+        self.name = name
         self.apartmentNumber = apartmentNumber
-        self.addressLine = addressLine
+        self.addressLine1 = addressLine1
+        self.addressLine2 = addressLine2
+        self.city = city
+        self.postcode = postcode
+        self.country = country
         self.placeType = placeType
         self.startDate = startDate
         self.endDate = endDate
+    }
+
+    var fullAddress: String {
+        var addressLines = [String]()
+
+        if !apartmentNumber.isEmpty {
+            addressLines.append(apartmentNumber)
+        }
+
+        if let name, !name.isEmpty {
+            addressLines.append(name)
+        }
+
+        if !city.isEmpty {
+            addressLines.append(city)
+        }
+
+        if !postcode.isEmpty {
+            addressLines.append(postcode)
+        }
+
+        if !country.isEmpty {
+            addressLines.append(country)
+        }
+
+        return addressLines.joined(separator: ", ")
     }
 }
 
 extension Place {
     var durationString: String {
-        guard placeType == .residentialTenancy, let startDate = startDate, let endDate = endDate else {
+        guard let start = startDate else {
             return ""
         }
 
-        let calendar = Calendar.current
+        // If endDate is nil, use the current date for calculation
+        let end = endDate ?? Date()
 
-        guard startDate <= endDate else {
-            return "Invalid date range"
+        let components = Calendar.current.dateComponents([.year, .month, .day], from: start, to: end)
+
+        // Format the duration string (this is just an example)
+        let years = components.year ?? 0
+        let months = components.month ?? 0
+        let days = components.day ?? 0
+
+        var parts: [String] = []
+
+        if years > 0 {
+            parts.append("\(years) year\(years > 1 ? "s" : "")")
+        }
+        if months > 0 {
+            parts.append("\(months) month\(months > 1 ? "s" : "")")
+        }
+        if days > 0 && years == 0 { // Only show days if less than a month/year
+            parts.append("\(days) day\(days > 1 ? "s" : "")")
         }
 
-        let components = calendar.dateComponents([.year, .month, .day], from: startDate, to: endDate)
-        guard let years = components.year, let months = components.month else {
-            return ""
-        }
-
-        if years == 0 && months == 0 {
-            return "Within a month"
-        } else if years == 0 {
-            return "\(months) month\(months > 1 ? "s" : "") ago"
+        if parts.isEmpty {
+            return "Less than a day"
         } else {
-            let monthsPart = months > 0 ? ", \(months) month\(months > 1 ? "s" : "")" : ""
-            return "\(years) year\(years > 1 ? "s" : "")\(monthsPart) ago"
+            return parts.joined(separator: ", ")
         }
     }
 }

@@ -21,7 +21,7 @@ class PlacesViewModel {
     }
 
     var searchResults: [SearchResult] = []
-    var isPresentingPlaceTypeView = false
+    var presentAddPlaceView = false
     var selectedSearchResult: SearchResult?
     var isSearching: Bool = false
 
@@ -57,7 +57,7 @@ class PlacesViewModel {
 
         do {
             let response = try await search.start()
-            let mapItems = response.mapItems.prefix(10) // Limit results to 10
+            let mapItems = response.mapItems.prefix(10)
 
             var newSearchResults: [SearchResult] = []
 
@@ -67,12 +67,9 @@ class PlacesViewModel {
 
                 // Perform reverse geocoding
                 if let placemark = await reverseGeocode(coordinate: coordinate) {
-                    let detailedAddress = formatAddress(from: placemark)
-                    // Create SearchResult with placemark
                     let searchResult = SearchResult(
                         coordinate: coordinate,
                         title: title,
-                        detailedAddress: detailedAddress,
                         placemark: placemark
                     )
                     newSearchResults.append(searchResult)
@@ -97,43 +94,5 @@ class PlacesViewModel {
             print("Reverse geocoding error: \(error.localizedDescription)")
             return nil
         }
-    }
-
-    private func formatAddress(from placemark: CLPlacemark) -> String {
-        var addressLines: [String] = []
-
-        // First Line: subThoroughfare and thoroughfare
-        var firstLineComponents: [String] = []
-
-        if let subThoroughfare = placemark.subThoroughfare {
-            firstLineComponents.append(subThoroughfare)
-        }
-
-        if let thoroughfare = placemark.thoroughfare {
-            firstLineComponents.append(thoroughfare)
-        }
-
-        if !firstLineComponents.isEmpty {
-            addressLines.append(firstLineComponents.joined(separator: " "))
-        }
-
-        // Add other address components
-        if let locality = placemark.locality {
-            addressLines.append(locality)
-        }
-        
-        if let administrativeArea = placemark.administrativeArea {
-            addressLines.append(administrativeArea)
-        }
-
-        if let postalCode = placemark.postalCode {
-            addressLines.append(postalCode)
-        }
-
-        if let country = placemark.country {
-            addressLines.append(country)
-        }
-
-        return addressLines.joined(separator: ", ")
     }
 }

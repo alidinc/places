@@ -17,7 +17,10 @@ struct ContentView: View {
 
     @Environment(\.modelContext) private var modelContext
     @FocusState private var focused: Bool
-    @State private var isPresentingAddManualAddress = false
+
+    @State private var placeToEdit: Place?
+    @State private var showAddManual = false
+
     @Query(sort: \Place.endDate, order: .forward) private var savedAddresses: [Place]
 
     var body: some View {
@@ -28,78 +31,71 @@ struct ContentView: View {
                     SavedPlaces
                 }
 
-                Color.black
-                    .opacity(vm.isSearching ? 0.75 : 0)
-                    .ignoresSafeArea()
+                Shade
             }
             .gradientBackground()
-            .ignoresSafeArea(edges: .bottom)
-            .safeAreaInset(edge: .bottom) {
-                SearchView(vm: vm, showAddManual: $isPresentingAddManualAddress)
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        SettingsView(language: language)
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                    }
-                    .tint(tint.color)
-                }
-            }
-            .sheet(isPresented: $isPresentingAddManualAddress) { AddPlaceManualView() }
-            .sheet(isPresented: $vm.isPresentingPlaceTypeView) {
-                if let searchResult = vm.selectedSearchResult {
-                    AddPlaceView(searchResult: searchResult) { place in
-                        modelContext.insert(place)
-                        vm.selectedSearchResult = nil
-                    }
-                } else {
-                    Text("No place selected")
+            .safeAreaInset(edge: .bottom) { SearchView(vm: vm, showAddManual: $showAddManual) }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { SettingsButton } }
+            .sheet(isPresented: $showAddManual) { AddPlaceManualView() }
+            .sheet(item: $placeToEdit) { address in EditPlaceView(place: address) }
+            .sheet(item: $vm.selectedSearchResult) { place in
+                AddResidentialDatesView(result: place) { place in
+                    vm.selectedSearchResult = nil
+                    vm.searchQuery = ""
+                    vm.searchResults = []
+                    focused = false
                 }
             }
         }
     }
 
-    private var SearchTextField: some View {
-        HStack(spacing: 10) {
-            TextField("Search for address", text: $vm.searchQuery)
-                .textFieldStyle(.plain)
-                .padding()
-                .padding(.trailing, 40)
-                .focused($focused)
-                .background(.ultraThinMaterial, in: .rect(cornerRadius: 20))
-                .autocorrectionDisabled()
-                .showClearButton($vm.searchQuery, action: { vm.searchQuery = "" })
+    private var Shade: some View {
+        Color.black
+            .opacity(vm.isSearching ? 0.75 : 0)
+            .ignoresSafeArea()
+    }
 
-            Button {
-                isPresentingAddManualAddress = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(tint.color.gradient)
-            }
+    private var SettingsButton: some View {
+        NavigationLink {
+            SettingsView(language: language)
+        } label: {
+            Image(systemName: "gearshape.fill")
         }
-        .padding()
+        .tint(tint.color)
     }
 
     private var SavedPlaces: some View {
         List {
             ForEach(savedAddresses) { address in
-                PlaceRow(address: address)
+                PlaceRow(place: address)
+                    .swipeActions(allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            delete(address: address)
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .tint(.red)
+
+                        Button {
+                            placeToEdit = address
+                        } label: {
+                            Image(systemName: "pencil")
+                        }
+                        .tint(.orange)
+                    }
             }
-            .onDelete(perform: deleteAddress(at:))
             .listRowInsets(.init(top: 14, leading: 14, bottom: 14, trailing: 14))
-            .listRowBackground(Color(.secondarySystemBackground))
+            .listRowBackground(Material.ultraThinMaterial)
         }
+        .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .clipShape(.rect(cornerRadius: 12))
     }
 
-    private func deleteAddress(at offsets: IndexSet) {
-        for index in offsets {
-            let address = savedAddresses[index]
-            modelContext.delete(address)
-            try? modelContext.save()
-        }
+    private func delete(address: Place) {
+        modelContext.delete(address)
+        try? modelContext.save()
     }
 }
+
+extension Material: @retroactive View {}
