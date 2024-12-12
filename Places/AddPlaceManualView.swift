@@ -20,15 +20,17 @@ struct AddPlaceManualView: View {
     @State private var state = ""
     @State private var postalCode = ""
     @State private var country = ""
-
-    // Place type and dates
-    @State private var selectedPlaceType: PlaceType = .residential
     @State private var startDate = Date()
     @State private var endDate = Date()
 
     // Validation
     @State private var showAlert = false
     @State private var alertMessage = ""
+
+    // Country and City Selection
+    @Environment(CountryViewModel.self) var viewModel
+    @State private var selectedCountry: Country? = nil
+    @State private var selectedCity: String = ""
 
     var body: some View {
         NavigationStack {
@@ -39,10 +41,32 @@ struct AddPlaceManualView: View {
                     TextField("Address Line 2", text: $addressLine2)
                     TextField("Apartment/House Number", text: $apartmentNumber)
                         .keyboardType(.decimalPad)
-                    TextField("City", text: $city)
+
+                    Picker("Country", selection: $selectedCountry) {
+                        Text("Select a Country").tag("Select")
+                        ForEach(viewModel.countries, id: \.hashValue) { country in
+                            Text(country.country).tag(country)
+                        }
+                    }
+                    .onChange(of: selectedCountry) { _, newValue in
+                        selectedCity = ""
+                        country = newValue?.country ?? ""
+                    }
+
+                    if let selectedCountry {
+                        Picker("City", selection: $selectedCity) {
+                            Text("Select a City").tag("Select")
+                            ForEach(selectedCountry.cities.sorted(by: { $0 < $1 }), id: \.self) { city in
+                                Text(city).tag(city)
+                            }
+                        }
+                        .onChange(of: selectedCity) { _, newValue in
+                            city = newValue
+                        }
+                    }
+
                     TextField("State", text: $state)
                     TextField("Postal Code", text: $postalCode)
-                    TextField("Country", text: $country)
                 }
 
                 Section(header: Text("Dates")) {
@@ -52,6 +76,12 @@ struct AddPlaceManualView: View {
             }
             .navigationTitle("Add Address Manually")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                viewModel.fetchCountries()
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Invalid Input"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -65,17 +95,15 @@ struct AddPlaceManualView: View {
                     }
                 }
             }
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text("Invalid Input"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
         }
+        .presentationDetents([.fraction(0.72)])
     }
 
     private func isFormValid() -> Bool {
         !addressLine1.isEmpty &&
         !city.isEmpty &&
         !country.isEmpty &&
-        (selectedPlaceType == .residential ? startDate <= endDate : true)
+        startDate <= endDate
     }
 
     private func savePlace() {
@@ -98,6 +126,7 @@ struct AddPlaceManualView: View {
         )
 
         modelContext.insert(place)
+        try? modelContext.save()
         dismiss()
     }
 }

@@ -10,8 +10,13 @@ import SwiftUI
 
 struct HeaderView: View {
 
+    @AppStorage("tint") private var tint: Tint = .blue
     @Query private var savedAddresses: [Place]
     @State var placeType: PlaceType = .residential
+
+    var oldestDate: Date {
+        savedAddresses.compactMap({ $0.startDate }).min() ?? .now
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -20,6 +25,10 @@ struct HeaderView: View {
                 .contentTransition(.numericText())
 
             PlaceTypePicker
+
+            Text("Since \(oldestDate, format: .dateTime.day().month().year())")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
         }
         .frame(height: UIScreen.main.bounds.height / 4.5)
     }
@@ -34,12 +43,13 @@ struct HeaderView: View {
                 }
             }
         } label: {
-            HStack {
+            HStack(alignment: .lastTextBaseline) {
                 Image(systemName: placeType.icon)
                 Text(placeType.rawValue)
             }
-            .foregroundStyle(.secondary)
-            .font(.headline.weight(.medium))
+            .foregroundStyle(tint.color.gradient)
+            .font(.subheadline.weight(.medium))
+            .capsule()
         }
     }
 }

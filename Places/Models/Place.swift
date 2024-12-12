@@ -11,7 +11,7 @@ import SwiftData
 enum PlaceType: String, Codable, CaseIterable {
 
     case residential = "Residential"
-    case place = "Place"
+    case place = "Places"
 
     var icon: String {
         switch self {
@@ -25,8 +25,8 @@ enum PlaceType: String, Codable, CaseIterable {
 
 @Model
 class Place: Identifiable {
+
     var id = UUID()
-    var name: String?
     var apartmentNumber: String
     var addressLine1: String
     var addressLine2: String
@@ -39,7 +39,6 @@ class Place: Identifiable {
 
     init(
         id: UUID = UUID(),
-        name: String? = nil,
         apartmentNumber: String,
         addressLine1: String,
         addressLine2: String,
@@ -51,7 +50,6 @@ class Place: Identifiable {
         endDate: Date? = nil
     ) {
         self.id = id
-        self.name = name
         self.apartmentNumber = apartmentNumber
         self.addressLine1 = addressLine1
         self.addressLine2 = addressLine2
@@ -62,6 +60,9 @@ class Place: Identifiable {
         self.startDate = startDate
         self.endDate = endDate
     }
+}
+
+extension Place {
 
     var fullAddress: String {
         var addressLines = [String]()
@@ -70,8 +71,12 @@ class Place: Identifiable {
             addressLines.append(apartmentNumber)
         }
 
-        if let name, !name.isEmpty {
-            addressLines.append(name)
+        if !addressLine1.isEmpty {
+            addressLines.append(addressLine1)
+        }
+
+        if !addressLine2.isEmpty {
+            addressLines.append(addressLine2)
         }
 
         if !city.isEmpty {
@@ -88,9 +93,7 @@ class Place: Identifiable {
 
         return addressLines.joined(separator: ", ")
     }
-}
 
-extension Place {
     var durationString: String {
         guard let start = startDate else {
             return ""

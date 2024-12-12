@@ -18,7 +18,7 @@ struct AddResidentialDatesView: View {
 
     @State private var selectedPlaceType: PlaceType = .residential
     @State private var startDate = Date()
-    @State private var endDate = Date()
+    @State private var endDate: Date?
     @State private var apartmentNumber = ""
     @State private var currentAddress = false
 
@@ -58,7 +58,7 @@ struct AddResidentialDatesView: View {
                     }
                     .font(.headline.weight(.medium))
                     .foregroundStyle(tint.color.gradient)
-                    .disabled(startDate > endDate)
+                    .disabled(startDate > endDate ?? .now)
                 }
             }
         }
@@ -100,6 +100,11 @@ struct AddResidentialDatesView: View {
                 .labelsHidden()
                 .tint(.green)
         }
+        .onChange(of: currentAddress) { oldValue, newValue in
+            if newValue {
+                endDate = nil
+            }
+        }
     }
 
     private var endDatePickerSection: some View {
@@ -108,7 +113,11 @@ struct AddResidentialDatesView: View {
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.secondary)
             Spacer()
-            DatePicker("", selection: $endDate, displayedComponents: .date)
+            DatePicker("", selection: Binding(get: {
+                endDate ?? .now
+            }, set: { value in
+                endDate = value
+            }), displayedComponents: .date)
                 .datePickerStyle(.compact)
                 .labelsHidden()
         }
@@ -137,12 +146,12 @@ struct AddResidentialDatesView: View {
                 .foregroundStyle(.white)
                 .shadow(color: .blue.opacity(0.2), radius: 5, x: 0, y: 2)
         }
-        .disabled(startDate > endDate)
+        .disabled(startDate > endDate ?? .now)
         .padding(.horizontal)
     }
 
     private func savePlace() {
-        if startDate > endDate { return }
+        if startDate > endDate ?? .now { return }
 
         let name = result.placemark.name ?? ""
         let addressLine1 = result.placemark.thoroughfare ?? ""
@@ -152,7 +161,6 @@ struct AddResidentialDatesView: View {
         let postcode = result.placemark.postalCode ?? ""
 
         let place = Place(
-            name: name,
             apartmentNumber: apartmentNumber,
             addressLine1: addressLine1,
             addressLine2: addressLine2,
@@ -164,8 +172,10 @@ struct AddResidentialDatesView: View {
             endDate: endDate
         )
 
-        context.insert(place)
-        try? context.save()
+        withAnimation {
+            context.insert(place)
+            try? context.save()
+        }
         onDismiss(place)
         dismiss()
     }

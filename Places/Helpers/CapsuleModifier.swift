@@ -11,8 +11,7 @@ struct CapsuleModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.system(size: 14).weight(.medium))
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(.ultraThinMaterial, in: .capsule)
     }

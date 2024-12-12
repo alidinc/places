@@ -58,8 +58,8 @@ struct CustomAlertView: View {
     }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            VStack(spacing: 12) {
+        VStack(alignment: .center) {
+            VStack {
                 Text(title)
                     .font(.title3)
                     .bold()
@@ -108,7 +108,7 @@ struct CustomAlertView: View {
                         .frame(height: 45)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(colorForegroundBlack())
-                        .background(colorForBlack(), in: .rect(cornerRadius: 10, style: .continuous))
+                        .background(colorForBlack().gradient, in: .rect(cornerRadius: 10, style: .continuous))
                     })
                 }
             }
@@ -131,7 +131,7 @@ struct CustomAlertView: View {
                             .frame(height: 45)
                             .frame(maxWidth: .infinity)
                             .foregroundStyle(verticalActionForegroundColor(for: index))
-                            .background(verticalActionBackgroundColor(for: index), in: .rect(cornerRadius: 10, style: .continuous))
+                            .background(verticalActionBackgroundColor(for: index).gradient, in: .rect(cornerRadius: 10, style: .continuous))
                         })
                     }
                 }
@@ -150,7 +150,8 @@ struct CustomAlertView: View {
                         .tint(.white)
                         .frame(height: 45)
                         .frame(maxWidth: .infinity)
-                        .background(scheme == .light ? Color.black.opacity(0.15) : Color.white.opacity(0.15),
+                        .foregroundStyle(scheme == .light ? .black : .white)
+                        .background(scheme == .light ? Color.black.opacity(0.25) : Color.white.opacity(0.15),
                                     in: .rect(cornerRadius: 12, style: .continuous))
                 })
             }
@@ -201,7 +202,7 @@ struct CustomAlertView: View {
                         .frame(height: 45)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(verticalActionForegroundColor(for: index))
-                        .background(colorForBlack(), in: .rect(cornerRadius: 10, style: .continuous))
+                        .background(colorForBlack().gradient, in: .rect(cornerRadius: 10, style: .continuous))
                     })
                 }
 
@@ -218,7 +219,8 @@ struct CustomAlertView: View {
                             .tint(.white)
                             .frame(height: 45)
                             .frame(maxWidth: .infinity)
-                            .background(scheme == .light ? Color.black.opacity(0.15) : Color.white.opacity(0.15),
+                            .foregroundStyle(scheme == .light ? .black : .white)
+                            .background(scheme == .light ? Color.black.opacity(0.25) : Color.white.opacity(0.15),
                                         in: .rect(cornerRadius: 12, style: .continuous))
                     })
                 }
@@ -238,7 +240,8 @@ struct CustomAlertView: View {
                             .tint(.white)
                             .frame(height: 45)
                             .frame(maxWidth: .infinity)
-                            .background(scheme == .light ? Color.black.opacity(0.15) : Color.white.opacity(0.15),
+                            .foregroundStyle(scheme == .light ? .black : .white)
+                            .background(scheme == .light ? Color.black.opacity(0.25) : Color.white.opacity(0.15),
                                         in: .rect(cornerRadius: 12, style: .continuous))
                     })
                 }
@@ -259,7 +262,7 @@ struct CustomAlertView: View {
                         .frame(height: 45)
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(colorForegroundBlack())
-                        .background(colorForBlack(), in: .rect(cornerRadius: 10, style: .continuous))
+                        .background(colorForBlack().gradient, in: .rect(cornerRadius: 10, style: .continuous))
                     })
                 }
             }
@@ -379,7 +382,7 @@ extension View {
         config: AlertConfig,
         object: ((Notification) -> Void)? = nil,
         onDisappear: (() -> Void)? = nil,
-        presentationFraction: Double = 0.25
+        presentationFraction: Double = 0.22
     ) -> some View {
         modifier(
             CustomAlert(

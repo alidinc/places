@@ -21,6 +21,8 @@ struct PlaceRow: View {
             AddressLineView
             DurationView
         }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .alert(isPresented: $showingCopyAlert) {
             Alert(title: Text("Copied"),
                   message: Text("Address copied to clipboard"),

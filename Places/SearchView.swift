@@ -13,6 +13,7 @@ struct SearchView: View {
     @Bindable var vm: PlacesViewModel
     @Binding var showAddManual: Bool
 
+    @Environment(\.colorScheme) private var scheme
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -47,7 +48,7 @@ struct SearchView: View {
                         .font(.headline)
                         .padding()
                         .hSpacing(.leading)
-                        .background(Color(.secondarySystemBackground), in: .rect(cornerRadius: 12))
+                        .background(.black.opacity(scheme == .light ? 0.25 : 0.75), in: .rect(cornerRadius: 12))
                         .padding(.trailing, 12)
                 }
                 .listRowInsets(.init(top: 0, leading: 0, bottom: 5, trailing: 0))
@@ -67,7 +68,7 @@ struct SearchView: View {
 
     private func calculateDynamicHeight() -> CGFloat {
         let baseRowHeight: CGFloat = 110 // Adjust to match the actual height of each row
-        let maxVisibleRows: Int = 5    // Limit the number of rows to show at once
+        let maxVisibleRows: Int = 3    // Limit the number of rows to show at once
         let maxHeight = CGFloat(maxVisibleRows) * baseRowHeight
         return min(CGFloat(vm.searchResults.count) * baseRowHeight, maxHeight)
     }
