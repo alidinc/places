@@ -1,5 +1,5 @@
 //
-//  EditPlaceView.swift
+//  EditAddressView.swift
 //  Places
 //
 //  Created by alidinc on 11/12/2024.
@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct EditPlaceView: View {
+struct EditAddressView: View {
 
     @AppStorage("tint") private var tint: Tint = .blue
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @Bindable var place: Place
+    @Bindable var place: Address
 
     // Address fields
     @State private var apartmentNumber = ""

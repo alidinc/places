@@ -12,7 +12,7 @@ import CoreLocation
 
 @MainActor
 @Observable
-class PlacesViewModel {
+class AddressLookUpViewModel {
 
     var searchQuery: String = "" {
         didSet {
@@ -20,9 +20,9 @@ class PlacesViewModel {
         }
     }
 
-    var searchResults: [SearchResult] = []
+    var searchResults: [Location] = []
     var presentAddPlaceView = false
-    var selectedSearchResult: SearchResult?
+    var selectedSearchResult: Location?
     var isSearching: Bool = false
 
     private var searchTask: Task<Void, Never>?
@@ -59,7 +59,7 @@ class PlacesViewModel {
             let response = try await search.start()
             let mapItems = response.mapItems.prefix(10)
 
-            var newSearchResults: [SearchResult] = []
+            var newSearchResults: [Location] = []
 
             for mapItem in mapItems {
                 let coordinate = mapItem.placemark.coordinate
@@ -67,7 +67,7 @@ class PlacesViewModel {
 
                 // Perform reverse geocoding
                 if let placemark = await reverseGeocode(coordinate: coordinate) {
-                    let searchResult = SearchResult(
+                    let searchResult = Location(
                         coordinate: coordinate,
                         title: title,
                         placemark: placemark

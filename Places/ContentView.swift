@@ -12,7 +12,7 @@ import SwiftData
 struct ContentView: View {
 
     @AppStorage("tint") private var tint: Tint = .blue
-    @Bindable var vm: PlacesViewModel
+    @Bindable var vm: AddressLookUpViewModel
     @Bindable var language: LanguageManager
    
     @Environment(\.modelContext) private var modelContext
@@ -25,17 +25,17 @@ struct ContentView: View {
             ZStack {
                 VStack {
                     HeaderView()
-                    SavedPlacesView()
+                    AddressListView()
                 }
 
                 Shade
             }
             .gradientBackground()
-            .safeAreaInset(edge: .bottom) { SearchView(vm: vm, showAddManual: $showAddManual, isFocused: $focused) }
+            .safeAreaInset(edge: .bottom) { AddressSearchView(vm: vm, showAddManual: $showAddManual, isFocused: $focused) }
             .toolbar { ToolbarItem(placement: .topBarTrailing) { SettingsButton } }
             .sheet(isPresented: $showAddManual) { AddPlaceManualView() }
             .sheet(item: $vm.selectedSearchResult) { place in
-                AddResidentialDatesView(result: place) { place in
+                AddAddressView(result: place) { place in
                     vm.selectedSearchResult = nil
                     vm.searchQuery = ""
                     vm.searchResults = []

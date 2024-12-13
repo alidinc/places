@@ -112,7 +112,7 @@ struct AddPlaceManualView: View {
         
         let country = viewModel.countries.first(where: { $0.country.lowercased() == self.country })
 
-        let place = Place(
+        let place = Address(
             apartmentNumber: apartmentNumber,
             addressLine1: addressLine1,
             addressLine2: addressLine2,

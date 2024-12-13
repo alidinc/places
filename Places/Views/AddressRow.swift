@@ -8,9 +8,9 @@
 import SwiftUI
 import UIKit
 
-struct PlaceRow: View {
+struct AddressRow: View {
 
-    var place: Place
+    var place: Address
 
     @AppStorage("tint") private var tint: Tint = .blue
     @Environment(\.modelContext) private var modelContext

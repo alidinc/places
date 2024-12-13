@@ -11,8 +11,8 @@ import SwiftUI
 struct HeaderView: View {
 
     @AppStorage("tint") private var tint: Tint = .blue
-    @Query private var savedAddresses: [Place]
-    @State var placeType: PlaceType = .residential
+    @Query private var savedAddresses: [Address]
+    @State var placeType: AddressType = .residential
 
     var oldestDate: Date {
         savedAddresses.compactMap({ $0.startDate }).min() ?? .now
@@ -35,7 +35,7 @@ struct HeaderView: View {
 
     private var PlaceTypePicker: some View {
         Menu {
-            ForEach(PlaceType.allCases, id: \.self) { type in
+            ForEach(AddressType.allCases, id: \.self) { type in
                 Button {
                     self.placeType = type
                 } label: {

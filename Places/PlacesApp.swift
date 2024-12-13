@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct PlacesApp: App {
 
-    var vm = PlacesViewModel()
+    var vm = AddressLookUpViewModel()
     var countriesVm = CountryViewModel()
     var language = LanguageManager()
 
@@ -21,7 +21,7 @@ struct PlacesApp: App {
                 .environment(vm)
                 .environment(countriesVm)
                 .environment(\.locale, .init(identifier: language.language.key))
-                .modelContainer(for: Place.self)
+                .modelContainer(for: Address.self)
         }
     }
 }

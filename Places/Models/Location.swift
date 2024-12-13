@@ -8,7 +8,7 @@
 import Foundation
 import MapKit
 
-class SearchResult: Identifiable, Hashable {
+class Location: Identifiable, Hashable {
     
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
@@ -21,7 +21,7 @@ class SearchResult: Identifiable, Hashable {
         self.placemark = placemark
     }
 
-    static func == (lhs: SearchResult, rhs: SearchResult) -> Bool {
+    static func == (lhs: Location, rhs: Location) -> Bool {
         lhs.id == rhs.id
     }
 
@@ -32,6 +32,10 @@ class SearchResult: Identifiable, Hashable {
     var searchAddress: String {
         var addressLines: [String] = []
         var firstLineComponents: [String] = []
+        
+        if !title.isEmpty && title != placemark.name ?? "" && title != placemark.postalCode ?? "" {
+            firstLineComponents.append(title)
+        }
 
         if let name = placemark.name, !name.isEmpty {
             firstLineComponents.append(name)

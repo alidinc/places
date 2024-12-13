@@ -1,5 +1,5 @@
 //
-//  SearchView.swift
+//  AddressSearchView.swift
 //  Places
 //
 //  Created by alidinc on 02/12/2024.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct SearchView: View {
+struct AddressSearchView: View {
 
     @AppStorage("tint") private var tint: Tint = .blue
-    @Bindable var vm: PlacesViewModel
+    @Bindable var vm: AddressLookUpViewModel
     @Binding var showAddManual: Bool
     @Binding var isFocused: Bool
 
@@ -88,18 +88,8 @@ struct SearchView: View {
                 .autocorrectionDisabled()
                 .showClearButton($vm.searchQuery, action: { vm.searchQuery = "" })
 
-            Menu {
-                Button {
-                    showAddManual = true
-                } label: {
-                    Label("Add an address", systemImage: "pin.fill")
-                }
-
-                Button {
-
-                } label: {
-                    Label("Add a place", systemImage: "map.fill")
-                }
+            Button {
+                showAddManual = true
             } label: {
                 Image(systemName: "plus")
                     .font(.title3.weight(.bold))

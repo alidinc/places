@@ -8,25 +8,11 @@
 import Foundation
 import SwiftData
 
-enum PlaceType: String, Codable, CaseIterable {
-
-    case residential = "Residential"
-    case place = "Places"
-
-    var icon: String {
-        switch self {
-        case .residential:
-            return "house.fill"
-        case .place:
-            return "mappin.and.ellipse"
-        }
-    }
-}
-
 @Model
-class Place: Identifiable {
+class Address: Identifiable {
 
     var id = UUID()
+    var title: String?
     var name: String?
     var apartmentNumber: String
     var addressLine1: String
@@ -36,12 +22,13 @@ class Place: Identifiable {
     var country: Country?
     var sublocality: String?
     var locality: String?
-    var placeType: PlaceType
+    var placeType: AddressType
     var startDate: Date?
     var endDate: Date?
 
     init(
         id: UUID = UUID(),
+        title: String? = nil,
         name: String? = nil,
         apartmentNumber: String,
         addressLine1: String,
@@ -51,11 +38,12 @@ class Place: Identifiable {
         city: String,
         postcode: String,
         country: Country?,
-        placeType: PlaceType,
+        placeType: AddressType,
         startDate: Date? = nil,
         endDate: Date? = nil
     ) {
         self.id = id
+        self.title = title
         self.name = name
         self.apartmentNumber = apartmentNumber
         self.addressLine1 = addressLine1
@@ -71,10 +59,14 @@ class Place: Identifiable {
     }
 }
 
-extension Place {
+extension Address {
 
     var fullAddress: String {
         var addressLines = [String]()
+        
+        if let title, !title.isEmpty, let name, title != name {
+            addressLines.append(title)
+        }
 
         if !apartmentNumber.isEmpty {
             addressLines.append(apartmentNumber)

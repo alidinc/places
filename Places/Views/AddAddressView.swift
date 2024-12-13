@@ -1,5 +1,5 @@
 //
-//  AddResidentialDatesView.swift
+//  AddAddressView.swift
 //  Places
 //
 //  Created by alidinc on 02/12/2024.
@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct AddResidentialDatesView: View {
+struct AddAddressView: View {
 
-    let result: SearchResult
-    let onDismiss: (Place) -> Void
+    let result: Location
+    let onDismiss: (Address) -> Void
 
     @AppStorage("tint") private var tint: Tint = .blue
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
     @Environment(CountryViewModel.self) var viewModel
 
-    @State private var selectedPlaceType: PlaceType = .residential
+    @State private var selectedPlaceType: AddressType = .residential
     @State private var startDate = Date()
     @State private var endDate: Date?
     @State private var apartmentNumber = ""
@@ -154,6 +154,7 @@ struct AddResidentialDatesView: View {
     private func savePlace() {
         if startDate > endDate ?? .now { return }
 
+        let title = result.title
         let name = result.placemark.name ?? ""
         let addressLine1 = result.placemark.thoroughfare ?? ""
         let addressLine2 = result.placemark.subThoroughfare ?? ""
@@ -163,7 +164,8 @@ struct AddResidentialDatesView: View {
         let postcode = result.placemark.postalCode ?? ""
         let country = viewModel.countries.first(where: { $0.country.lowercased() == (result.placemark.country ?? "").lowercased() })
 
-        let place = Place(
+        let place = Address(
+            title: title,
             name: name,
             apartmentNumber: apartmentNumber,
             addressLine1: addressLine1,

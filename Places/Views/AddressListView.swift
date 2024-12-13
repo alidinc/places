@@ -1,5 +1,5 @@
 //
-//  SavedPlacesView.swift
+//  AddressListView.swift
 //  Places
 //
 //  Created by alidinc on 12/12/2024.
@@ -8,15 +8,15 @@
 import SwiftData
 import SwiftUI
 
-struct SavedPlacesView: View {
+struct AddressListView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(CountryViewModel.self) private var countryVm
-    @State private var placeToEdit: Place?
-    @State private var placeToDelete: Place?
+    @State private var placeToEdit: Address?
+    @State private var placeToDelete: Address?
     @State private var showDeleteAlert = false
 
-    @Query(sort: \Place.endDate, order: .forward) private var savedAddresses: [Place]
+    @Query(sort: \Address.endDate, order: .forward) private var savedAddresses: [Address]
 
     var body: some View {
         Group {
@@ -26,11 +26,11 @@ struct SavedPlacesView: View {
                 listView
             }
         }
-        .sheet(item: $placeToEdit) { EditPlaceView(place: $0) }
+        .sheet(item: $placeToEdit) { EditAddressView(place: $0) }
         .customAlert(
             isPresented: $showDeleteAlert,
             config: .init(
-                title: "Are45",
+                title: "Are you sure to delete this address?",
                 subtitle: LocalizedStringResource(stringLiteral: placeToDelete?.fullAddress ?? ""),
                 primaryActions: [
                     .init(title: "Delete", action: deleteSelectedPlace)
@@ -57,7 +57,7 @@ struct SavedPlacesView: View {
             ForEach(groupedAddresses.keys.sorted(by: { $0?.country ?? "" < $1?.country ?? "" }), id: \.self) { country in
                 Section {
                     ForEach(groupedAddresses[country] ?? []) { address in
-                        PlaceRow(place: address)
+                        AddressRow(place: address)
                             .swipeActions(allowsFullSwipe: false) {
                                 deleteButton(for: address)
                                 editButton(for: address)
@@ -82,7 +82,7 @@ struct SavedPlacesView: View {
 
     // MARK: - Buttons
 
-    private func deleteButton(for address: Place) -> some View {
+    private func deleteButton(for address: Address) -> some View {
         Button {
             placeToDelete = address
             showDeleteAlert = true
@@ -92,7 +92,7 @@ struct SavedPlacesView: View {
         .tint(.red)
     }
 
-    private func editButton(for address: Place) -> some View {
+    private func editButton(for address: Address) -> some View {
         Button {
             placeToEdit = address
         } label: {
@@ -117,7 +117,7 @@ struct SavedPlacesView: View {
 
     // MARK: - Grouped Addresses
 
-    private var groupedAddresses: [Country?: [Place]] {
+    private var groupedAddresses: [Country?: [Address]] {
         Dictionary(grouping: savedAddresses, by: { $0.country })
     }
 
