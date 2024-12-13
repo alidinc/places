@@ -12,6 +12,7 @@ struct SearchView: View {
     @AppStorage("tint") private var tint: Tint = .blue
     @Bindable var vm: PlacesViewModel
     @Binding var showAddManual: Bool
+    @Binding var isFocused: Bool
 
     @Environment(\.colorScheme) private var scheme
     @FocusState private var focused: Bool
@@ -26,6 +27,9 @@ struct SearchView: View {
         .animation(.easeInOut, value: vm.isSearching)
         .padding(.horizontal)
         .padding(.bottom)
+        .onChange(of: isFocused) { _, newValue in
+            self.focused = newValue
+        }
     }
 
     @ViewBuilder
@@ -67,7 +71,7 @@ struct SearchView: View {
     }
 
     private func calculateDynamicHeight() -> CGFloat {
-        let baseRowHeight: CGFloat = 110 // Adjust to match the actual height of each row
+        let baseRowHeight: CGFloat = 120 // Adjust to match the actual height of each row
         let maxVisibleRows: Int = 3    // Limit the number of rows to show at once
         let maxHeight = CGFloat(maxVisibleRows) * baseRowHeight
         return min(CGFloat(vm.searchResults.count) * baseRowHeight, maxHeight)

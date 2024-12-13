@@ -33,20 +33,24 @@ class SearchResult: Identifiable, Hashable {
         var addressLines: [String] = []
         var firstLineComponents: [String] = []
 
-        if let name = placemark.name {
+        if let name = placemark.name, !name.isEmpty {
             firstLineComponents.append(name)
         }
 
         if !firstLineComponents.isEmpty {
             addressLines.append(firstLineComponents.joined(separator: ", "))
         }
+        
+        if let sublocality = placemark.subLocality, !sublocality.isEmpty {
+            addressLines.append(sublocality)
+        }
 
         // Add other address components
-        if let locality = placemark.locality {
+        if let locality = placemark.locality, !locality.isEmpty {
             addressLines.append(locality)
         }
 
-        if let administrativeArea = placemark.administrativeArea {
+        if let administrativeArea = placemark.administrativeArea, !administrativeArea.isEmpty {
             addressLines.append(administrativeArea)
         }
 

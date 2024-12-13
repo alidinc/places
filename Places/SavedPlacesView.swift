@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct SavedPlacesView: View {
-
+    
     @Environment(\.modelContext) private var modelContext
     @Environment(CountryViewModel.self) private var countryVm
     @State private var placeToEdit: Place?
@@ -19,36 +19,54 @@ struct SavedPlacesView: View {
     @Query(sort: \Place.endDate, order: .forward) private var savedAddresses: [Place]
 
     var body: some View {
+        Group {
+            if savedAddresses.isEmpty {
+                unavailableView
+            } else {
+                listView
+            }
+        }
+        .sheet(item: $placeToEdit) { EditPlaceView(place: $0) }
+        .customAlert(
+            isPresented: $showDeleteAlert,
+            config: .init(
+                title: "Delete Address?",
+                subtitle: "This action cannot be undone.",
+                primaryActions: [
+                    .init(title: "Delete", action: deleteSelectedPlace)
+                ],
+                hasCancel: true,
+                cancelAction: { showDeleteAlert = false }
+            )
+        )
+    }
+
+    // MARK: - Views
+
+    private var unavailableView: some View {
+        ContentUnavailableView(
+            "Add a new address",
+            systemImage: "pin.fill",
+            description: Text("Don't have any addresses yet.")
+        )
+        .padding()
+    }
+
+    private var listView: some View {
         List {
-
-
-
-
-
-            
-            ForEach(groupedAddresses.keys.sorted(), id: \.self) { country in
+            ForEach(groupedAddresses.keys.sorted(by: { $0?.country ?? "" < $1?.country ?? "" }), id: \.self) { country in
                 Section {
                     ForEach(groupedAddresses[country] ?? []) { address in
                         PlaceRow(place: address)
                             .swipeActions(allowsFullSwipe: false) {
-                                Button {
-                                    placeToDelete = address
-                                    showDeleteAlert = true
-                                } label: {
-                                    Image(systemName: "trash")
-                                }
-                                .tint(.red)
-
-                                Button {
-                                    placeToEdit = address
-                                } label: {
-                                    Image(systemName: "pencil")
-                                }
-                                .tint(.orange)
+                                deleteButton(for: address)
+                                editButton(for: address)
                             }
                     }
                 } header: {
-                    SectionHeader(for: country)
+                    if let country {
+                        sectionHeader(for: country)
+                    }
                 }
             }
             .listRowInsets(.init())
@@ -57,60 +75,59 @@ struct SavedPlacesView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
-        .clipShape(.rect(cornerRadius: 12))
         .padding(.horizontal)
         .padding(.bottom)
-        .overlay(alignment: .center) {
-            if savedAddresses.isEmpty {
-                ContentUnavailableView("Add a new address",
-                                       systemImage: "pin.fill",
-                                       description: Text("Don't have any addresses yet"))
-                    .padding()
-            }
-        }
-        .sheet(item: $placeToEdit) { EditPlaceView(place: $0) }
-        .customAlert(
-            isPresented: $showDeleteAlert,
-            config: .init(
-                title: "Would you like to delete this address?",
-                subtitle: "You won't be able to revert this action.",
-                primaryActions: [.init(
-                    title: "Delete",
-                    action: {
-                        if let placeToDelete {
-                            delete(address: placeToDelete)
-                        }
-                    })],
-                hasCancel: true,
-                cancelAction: { showDeleteAlert = false }
-            )
-        )
     }
 
-    private func SectionHeader(for country: String) -> some View {
+    // MARK: - Buttons
+
+    private func deleteButton(for address: Place) -> some View {
+        Button {
+            placeToDelete = address
+            showDeleteAlert = true
+        } label: {
+            Image(systemName: "trash")
+        }
+        .tint(.red)
+    }
+
+    private func editButton(for address: Place) -> some View {
+        Button {
+            placeToEdit = address
+        } label: {
+            Image(systemName: "pencil")
+        }
+        .tint(.orange)
+    }
+
+    // MARK: - Section Header
+
+    private func sectionHeader(for country: Country) -> some View {
         HStack {
-            if let countryFlag = countryVm.countryFlags.first(where: { ($0.name ?? "").lowercased() == country.lowercased() }) {
-                Text(countryFlag.unicodeFlag ?? "")
+            if let flag = countryVm.countryFlags.first(where: { $0.name?.lowercased() == country.country.lowercased() }) {
+                Text(flag.unicodeFlag ?? "")
             }
 
-            Text(country)
+            Text(country.country.isEmpty ? "Unknown Country" : country.country)
                 .font(.headline)
         }
         .padding(.leading)
     }
 
-    private var groupedAddresses: [String: [Place]] {
+    // MARK: - Grouped Addresses
+
+    private var groupedAddresses: [Country?: [Place]] {
         Dictionary(grouping: savedAddresses, by: { $0.country })
     }
 
-    private func delete(address: Place) {
+    // MARK: - Delete Address
+
+    private func deleteSelectedPlace() {
+        guard let placeToDelete else { return }
         withAnimation {
-            modelContext.delete(address)
+            modelContext.delete(placeToDelete)
             try? modelContext.save()
         }
+        showDeleteAlert = false
     }
-}
-
-#Preview {
-    SavedPlacesView()
 }

@@ -15,6 +15,7 @@ struct AddResidentialDatesView: View {
     @AppStorage("tint") private var tint: Tint = .blue
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(CountryViewModel.self) var viewModel
 
     @State private var selectedPlaceType: PlaceType = .residential
     @State private var startDate = Date()
@@ -156,14 +157,19 @@ struct AddResidentialDatesView: View {
         let name = result.placemark.name ?? ""
         let addressLine1 = result.placemark.thoroughfare ?? ""
         let addressLine2 = result.placemark.subThoroughfare ?? ""
-        let city = result.placemark.locality ?? ""
-        let country = result.placemark.country ?? ""
+        let sublocality = result.placemark.subLocality ?? ""
+        let locality = result.placemark.locality ?? ""
+        let city = result.placemark.administrativeArea ?? ""
         let postcode = result.placemark.postalCode ?? ""
+        let country = viewModel.countries.first(where: { $0.country.lowercased() == (result.placemark.country ?? "").lowercased() })
 
         let place = Place(
+            name: name,
             apartmentNumber: apartmentNumber,
             addressLine1: addressLine1,
             addressLine2: addressLine2,
+            sublocality: sublocality,
+            locality: locality,
             city: city,
             postcode: postcode,
             country: country,

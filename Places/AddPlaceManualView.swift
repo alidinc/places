@@ -16,8 +16,9 @@ struct AddPlaceManualView: View {
     @State private var apartmentNumber = ""
     @State private var addressLine1 = ""
     @State private var addressLine2 = ""
+    @State private var sublocality = ""
+    @State private var locality = ""
     @State private var city = ""
-    @State private var state = ""
     @State private var postalCode = ""
     @State private var country = ""
     @State private var startDate = Date()
@@ -52,7 +53,7 @@ struct AddPlaceManualView: View {
                         selectedCity = ""
                         country = newValue?.country ?? ""
                     }
-
+                    
                     if let selectedCountry {
                         Picker("City", selection: $selectedCity) {
                             Text("Select a City").tag("Select")
@@ -65,7 +66,6 @@ struct AddPlaceManualView: View {
                         }
                     }
 
-                    TextField("State", text: $state)
                     TextField("Postal Code", text: $postalCode)
                 }
 
@@ -76,9 +76,6 @@ struct AddPlaceManualView: View {
             }
             .navigationTitle("Add Address Manually")
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                viewModel.fetchCountries()
-            }
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Invalid Input"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
@@ -112,6 +109,8 @@ struct AddPlaceManualView: View {
             showAlert = true
             return
         }
+        
+        let country = viewModel.countries.first(where: { $0.country.lowercased() == self.country })
 
         let place = Place(
             apartmentNumber: apartmentNumber,

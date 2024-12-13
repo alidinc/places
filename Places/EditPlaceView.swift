@@ -22,45 +22,41 @@ struct EditPlaceView: View {
     @State private var addressLine2 = ""
     @State private var city = ""
     @State private var postcode = ""
-    @State private var country = ""
+    @State private var country: Country?
     @State private var startDate = Date()
     @State private var endDate = Date()
 
     // Country and City Picker
     @Environment(CountryViewModel.self) var viewModel
-    @State private var selectedCountry: Country?
-    @State private var selectedCity: String = ""
 
     var body: some View {
         NavigationStack {
             Form {
                 // Address Section
                 Section(header: Text("Address Details")) {
-                    TextField("Address Line 1", text: $addressLine1)
-                    TextField("Address Line 2", text: $addressLine2)
+                    if let name = place.name, name.isEmpty {
+                        TextField("Address Line 1", text: $addressLine1)
+                        TextField("Address Line 2", text: $addressLine2)
+                    } else {
+                        TextField("Address Line 1", text: $name)
+                    }
+                   
                     TextField("Apartment/House Number", text: $apartmentNumber)
                         .keyboardType(.decimalPad)
 
-                    Picker("Country", selection: $selectedCountry) {
-                        Text("Select a Country").tag("Select")
+                    Picker("Country", selection: $country) {
+                        Text("Select a Country").tag(nil as Country?)
                         ForEach(viewModel.countries, id: \.hashValue) { country in
-                            Text(country.country).tag(country)
+                            Text(country.country).tag(country as Country?)
                         }
-                    }
-                    .onChange(of: selectedCountry) { _, newValue in
-                        selectedCity = ""
-                        self.country = newValue?.country ?? ""
                     }
 
-                    if let selectedCountry {
-                        Picker("City", selection: $selectedCity) {
-                            Text("Select a City").tag("Select")
-                            ForEach(selectedCountry.cities.sorted(by: { $0 < $1 }), id: \.self) { city in
-                                Text(city).tag(city)
+                    if let country {
+                        Picker("City", selection: $city) {
+                            Text("Select a City").tag("") // Placeholder for no selection
+                            ForEach(country.cities.sorted(by: { $0 < $1 }), id: \.self) { cityName in
+                                Text(cityName).tag(cityName)
                             }
-                        }
-                        .onChange(of: selectedCity) { _, newValue in
-                            self.city = newValue
                         }
                     }
 
@@ -75,7 +71,7 @@ struct EditPlaceView: View {
             .navigationTitle("Edit Address")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
-                loadPlaceDetails()
+                 loadPlaceDetails()
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -95,7 +91,9 @@ struct EditPlaceView: View {
         .presentationDetents([.fraction(0.72)])
     }
 
+    @MainActor
     private func loadPlaceDetails() {
+        name = place.name ?? ""
         addressLine1 = place.addressLine1
         addressLine2 = place.addressLine2
         apartmentNumber = place.apartmentNumber
@@ -104,14 +102,9 @@ struct EditPlaceView: View {
         country = place.country
         startDate = place.startDate ?? .now
         endDate = place.endDate ?? .now
-
-        // Preselect country and city if available
-        if let existingCountry = viewModel.countries.first(where: { $0.country.lowercased() == country.lowercased() }) {
-            selectedCountry = existingCountry
-
-            if let existingCity = existingCountry.cities.first(where: { $0.lowercased() == city.lowercased() }) {
-                selectedCity = existingCity
-            }
+        
+        if let country, let city = country.cities.first(where: { $0.lowercased() == place.city.lowercased() }) {
+            self.city = city
         }
     }
 

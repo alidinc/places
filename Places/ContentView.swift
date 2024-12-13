@@ -16,8 +16,7 @@ struct ContentView: View {
     @Bindable var language: LanguageManager
    
     @Environment(\.modelContext) private var modelContext
-    @FocusState private var focused: Bool
-
+    @State private var focused = false
     @State private var showAddManual = false
 
 
@@ -32,12 +31,8 @@ struct ContentView: View {
                 Shade
             }
             .gradientBackground()
-            .safeAreaInset(edge: .bottom) { SearchView(vm: vm, showAddManual: $showAddManual) }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    SettingsButton
-                }
-            }
+            .safeAreaInset(edge: .bottom) { SearchView(vm: vm, showAddManual: $showAddManual, isFocused: $focused) }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { SettingsButton } }
             .sheet(isPresented: $showAddManual) { AddPlaceManualView() }
             .sheet(item: $vm.selectedSearchResult) { place in
                 AddResidentialDatesView(result: place) { place in
@@ -54,6 +49,11 @@ struct ContentView: View {
         Color.black
             .opacity(vm.searchResults.count >= 1 ? 0.75 : 0)
             .ignoresSafeArea()
+            .onTapGesture {
+                vm.searchQuery = ""
+                vm.searchResults = []
+                focused = false
+            }
     }
 
     private var SettingsButton: some View {

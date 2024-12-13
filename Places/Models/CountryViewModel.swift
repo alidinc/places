@@ -25,68 +25,34 @@ class CountryViewModel {
     }
 
     @MainActor
-    func fetchCountries() {
+    func fetchCountries() async {
         isLoading = true
-        errorMessage = nil
-
-        DispatchQueue.global(qos: .background).async {
-            do {
-                // Locate the file in the app bundle
-                guard let fileURL = Bundle.main.url(forResource: "Countries", withExtension: "json") else {
-                    throw NSError(domain: "File not found", code: 404, userInfo: nil)
-                }
-
-                // Read the file contents
-                let data = try Data(contentsOf: fileURL)
-
-                // Decode the JSON
-                let decodedResponse = try JSONDecoder().decode(CountryResponse.self, from: data)
-
-                // Update the state on the main thread
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.countries = decodedResponse.data
-                }
-            } catch {
-                // Handle errors
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.errorMessage = "Failed to load data: \(error.localizedDescription)"
-                }
+        do {
+            guard let fileURL = Bundle.main.url(forResource: "Countries", withExtension: "json") else {
+                throw NSError(domain: "File not found", code: 404, userInfo: nil)
             }
+            let data = try Data(contentsOf: fileURL)
+            let decodedResponse = try JSONDecoder().decode(CountryResponse.self, from: data)
+            countries = decodedResponse.data
+        } catch {
+            errorMessage = "Failed to load data: \(error.localizedDescription)"
         }
+        isLoading = false
     }
 
     @MainActor
-    func fetchCountryFlags() {
+    func fetchCountryFlags() async {
         isLoading = true
-        errorMessage = nil
-
-        DispatchQueue.global(qos: .background).async {
-            do {
-                // Locate the file in the app bundle
-                guard let fileURL = Bundle.main.url(forResource: "CountryFlags", withExtension: "json") else {
-                    throw NSError(domain: "File not found", code: 404, userInfo: nil)
-                }
-
-                // Read the file contents
-                let data = try Data(contentsOf: fileURL)
-
-                // Decode the JSON
-                let decodedResponse = try JSONDecoder().decode(CountryFlag.self, from: data)
-
-                // Update the state on the main thread
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.countryFlags = decodedResponse.data ?? []
-                }
-            } catch {
-                // Handle errors
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.errorMessage = "Failed to load data: \(error.localizedDescription)"
-                }
+        do {
+            guard let fileURL = Bundle.main.url(forResource: "CountryFlags", withExtension: "json") else {
+                throw NSError(domain: "File not found", code: 404, userInfo: nil)
             }
+            let data = try Data(contentsOf: fileURL)
+            let decodedResponse = try JSONDecoder().decode(CountryFlag.self, from: data)
+            countryFlags = decodedResponse.data ?? []
+        } catch {
+            errorMessage = "Failed to load data: \(error.localizedDescription)"
         }
+        isLoading = false
     }
 }

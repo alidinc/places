@@ -27,32 +27,41 @@ enum PlaceType: String, Codable, CaseIterable {
 class Place: Identifiable {
 
     var id = UUID()
+    var name: String?
     var apartmentNumber: String
     var addressLine1: String
     var addressLine2: String
     var city: String
     var postcode: String
-    var country: String
+    var country: Country?
+    var sublocality: String?
+    var locality: String?
     var placeType: PlaceType
     var startDate: Date?
     var endDate: Date?
 
     init(
         id: UUID = UUID(),
+        name: String? = nil,
         apartmentNumber: String,
         addressLine1: String,
         addressLine2: String,
+        sublocality: String? = nil,
+        locality: String? = nil,
         city: String,
         postcode: String,
-        country: String,
+        country: Country?,
         placeType: PlaceType,
         startDate: Date? = nil,
         endDate: Date? = nil
     ) {
         self.id = id
+        self.name = name
         self.apartmentNumber = apartmentNumber
         self.addressLine1 = addressLine1
         self.addressLine2 = addressLine2
+        self.sublocality = sublocality
+        self.locality = locality
         self.city = city
         self.postcode = postcode
         self.country = country
@@ -70,13 +79,25 @@ extension Place {
         if !apartmentNumber.isEmpty {
             addressLines.append(apartmentNumber)
         }
-
-        if !addressLine1.isEmpty {
-            addressLines.append(addressLine1)
+        
+        if let name, !name.isEmpty {
+            addressLines.append(name)
+        } else {
+            if !addressLine1.isEmpty {
+                if !addressLine2.isEmpty {
+                    addressLines.append("\(addressLine2) \(addressLine1)")
+                } else {
+                    addressLines.append(addressLine1)
+                }
+            }
         }
 
-        if !addressLine2.isEmpty {
-            addressLines.append(addressLine2)
+        if let sublocality, !sublocality.isEmpty {
+            addressLines.append(sublocality)
+        }
+        
+        if let locality, !locality.isEmpty {
+            addressLines.append(locality)
         }
 
         if !city.isEmpty {
@@ -87,8 +108,8 @@ extension Place {
             addressLines.append(postcode)
         }
 
-        if !country.isEmpty {
-            addressLines.append(country)
+        if let country {
+            addressLines.append(country.country)
         }
 
         return addressLines.joined(separator: ", ")

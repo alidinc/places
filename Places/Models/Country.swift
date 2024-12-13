@@ -16,6 +16,14 @@ struct CountryResponse: Codable {
 struct Country: Codable, Hashable {
     let country: String
     let cities: [String]
+    
+    var lowercasedCountry: String {
+        country.lowercased()
+    }
+    
+    var lowercasedCities: [String] {
+        cities.map { $0.lowercased() }
+    }
 }
 
 // MARK: - CountryFlag
