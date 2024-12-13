@@ -382,7 +382,7 @@ extension View {
         config: AlertConfig,
         object: ((Notification) -> Void)? = nil,
         onDisappear: (() -> Void)? = nil,
-        presentationFraction: Double = 0.22
+        presentationFraction: Double = 0.25
     ) -> some View {
         modifier(
             CustomAlert(

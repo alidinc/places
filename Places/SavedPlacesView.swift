@@ -30,8 +30,8 @@ struct SavedPlacesView: View {
         .customAlert(
             isPresented: $showDeleteAlert,
             config: .init(
-                title: "Delete Address?",
-                subtitle: "This action cannot be undone.",
+                title: "Are45",
+                subtitle: LocalizedStringResource(stringLiteral: placeToDelete?.fullAddress ?? ""),
                 primaryActions: [
                     .init(title: "Delete", action: deleteSelectedPlace)
                 ],
@@ -75,6 +75,7 @@ struct SavedPlacesView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: 12))
         .padding(.horizontal)
         .padding(.bottom)
     }

@@ -19,40 +19,33 @@ class CountryViewModel {
 
     init() {
         Task {
-            await fetchCountries()
-            await fetchCountryFlags()
+            await loadData(resource: "Countries", decodingType: CountryResponse.self) { [weak self] response in
+                self?.countries = response.data
+            }
+            await loadData(resource: "CountryFlags", decodingType: CountryFlag.self) { [weak self] response in
+                self?.countryFlags = response.data ?? []
+            }
         }
     }
 
     @MainActor
-    func fetchCountries() async {
+    private func loadData<T: Decodable>(
+        resource: String,
+        decodingType: T.Type,
+        completion: @escaping (T) -> Void
+    ) async {
         isLoading = true
-        do {
-            guard let fileURL = Bundle.main.url(forResource: "Countries", withExtension: "json") else {
-                throw NSError(domain: "File not found", code: 404, userInfo: nil)
-            }
-            let data = try Data(contentsOf: fileURL)
-            let decodedResponse = try JSONDecoder().decode(CountryResponse.self, from: data)
-            countries = decodedResponse.data
-        } catch {
-            errorMessage = "Failed to load data: \(error.localizedDescription)"
-        }
-        isLoading = false
-    }
+        defer { isLoading = false }
 
-    @MainActor
-    func fetchCountryFlags() async {
-        isLoading = true
         do {
-            guard let fileURL = Bundle.main.url(forResource: "CountryFlags", withExtension: "json") else {
+            guard let fileURL = Bundle.main.url(forResource: resource, withExtension: "json") else {
                 throw NSError(domain: "File not found", code: 404, userInfo: nil)
             }
             let data = try Data(contentsOf: fileURL)
-            let decodedResponse = try JSONDecoder().decode(CountryFlag.self, from: data)
-            countryFlags = decodedResponse.data ?? []
+            let decodedResponse = try JSONDecoder().decode(decodingType, from: data)
+            completion(decodedResponse)
         } catch {
-            errorMessage = "Failed to load data: \(error.localizedDescription)"
+            errorMessage = "Failed to load \(resource) data: \(error.localizedDescription)"
         }
-        isLoading = false
     }
 }

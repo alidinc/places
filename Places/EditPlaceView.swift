@@ -21,6 +21,7 @@ struct EditPlaceView: View {
     @State private var addressLine1 = ""
     @State private var addressLine2 = ""
     @State private var city = ""
+    @State private var sublocality = ""
     @State private var postcode = ""
     @State private var country: Country?
     @State private var startDate = Date()
@@ -44,21 +45,19 @@ struct EditPlaceView: View {
                     TextField("Apartment/House Number", text: $apartmentNumber)
                         .keyboardType(.decimalPad)
 
-                    Picker("Country", selection: $country) {
-                        Text("Select a Country").tag(nil as Country?)
+                    Picker(selection: $country) {
                         ForEach(viewModel.countries, id: \.hashValue) { country in
                             Text(country.country).tag(country as Country?)
                         }
+                    } label: {
+                        Text("Select a Country")
+                            .foregroundStyle(.secondary)
+                            .font(.subheadline)
                     }
 
-                    if let country {
-                        Picker("City", selection: $city) {
-                            Text("Select a City").tag("") // Placeholder for no selection
-                            ForEach(country.cities.sorted(by: { $0 < $1 }), id: \.self) { cityName in
-                                Text(cityName).tag(cityName)
-                            }
-                        }
-                    }
+                    TextField("City", text: $city)
+                
+                    TextField("State", text: $sublocality)
 
                     TextField("Postal Code", text: $postcode)
                 }
@@ -90,24 +89,56 @@ struct EditPlaceView: View {
         }
         .presentationDetents([.fraction(0.72)])
     }
-
+    
     @MainActor
     private func loadPlaceDetails() {
-        name = place.name ?? ""
+        
+        if let name = place.name {
+            self.name = name
+        }
+       
         addressLine1 = place.addressLine1
         addressLine2 = place.addressLine2
         apartmentNumber = place.apartmentNumber
-        city = place.city
         postcode = place.postcode
         country = place.country
+        
+        if let sublocality = place.sublocality {
+            self.sublocality = sublocality
+        }
+        
         startDate = place.startDate ?? .now
         endDate = place.endDate ?? .now
-        
-        if let country, let city = country.cities.first(where: { $0.lowercased() == place.city.lowercased() }) {
-            self.city = city
+
+        if let country {
+            if country.country.lowercased() == "türkiye" {
+                self.city = place.city
+            } else {
+                self.city = place.locality ?? place.city
+            }
+        } else {
+            self.city = place.city
         }
     }
 
+    private func findCityAsync(cityToFind: String, in country: Country) async {
+        // Perform the search in the background
+        let citySet = Set(country.cities.map { $0.lowercased() })
+
+        // Perform the search asynchronously
+        if citySet.contains(cityToFind.lowercased()) {
+            DispatchQueue.main.async {
+                // If the city is found in the set, assign it to `city`
+                city = cityToFind
+            }
+        } else {
+            DispatchQueue.main.async {
+                // If no matching city is found, set city to an empty string
+                city = ""
+            }
+        }
+    }
+    
     private func saveChanges() {
         place.addressLine1 = addressLine1
         place.addressLine2 = addressLine2
