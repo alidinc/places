@@ -87,7 +87,7 @@ struct EditAddressView: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.72)])
+        .presentationDetents([.fraction(0.72), .large])
     }
     
     @MainActor

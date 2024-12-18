@@ -21,7 +21,8 @@ struct AddressRow: View {
             AddressLineView
             DurationView
         }
-        .padding(14)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .alert(isPresented: $showingCopyAlert) {
             Alert(title: Text("Copied"),
@@ -37,29 +38,34 @@ struct AddressRow: View {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
         } label: {
             Text(place.fullAddress)
-                .font(.headline)
+                .font(.subheadline.weight(.medium))
         }
     }
 
     @ViewBuilder
     private var DurationView: some View {
         if let startDate = place.startDate {
-            VStack(alignment: .leading) {
-                if let endDate = place.endDate {
-                    Text("\(startDate.formatted(.dateTime.day().month().year())) • \(endDate.formatted(.dateTime.day().month().year()))")
-                        .font(.subheadline)
-                        .foregroundStyle(tint.color.opacity(0.85))
-                } else {
-                    // No end date, show "Now"
-                    HStack {
-                        Circle().fill(.green).frame(width: 6, height: 6)
-                        Text("\(startDate.formatted(.dateTime.day().month().year())) • Present")
-                            .font(.subheadline)
-                            .foregroundStyle(tint.color.opacity(0.85))
+            HStack {
+                Group {
+                    if let endDate = place.endDate {
+                        Text("\(startDate.formatted(.dateTime.day().month().year())) • \(endDate.formatted(.dateTime.day().month().year()))")
+                    } else {
+                        HStack {
+                            Circle().fill(.green).frame(width: 6, height: 6)
+                            Text("\(startDate.formatted(.dateTime.day().month().year())) • Present")
+                        }
                     }
                 }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(tint.color.opacity(0.85))
+                
+                Spacer()
 
                 Text(place.durationString)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Image(systemName: place.buildingType.iconName)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

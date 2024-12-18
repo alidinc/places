@@ -18,7 +18,6 @@ struct GradientModifier: ViewModifier {
         return [
             label,
             label,
-            label.opacity(0.75),
             tint.color.opacity(0.05),
             tint.color.opacity(0.1),
             tint.color.opacity(0.1),

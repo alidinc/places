@@ -23,6 +23,7 @@ struct AddPlaceManualView: View {
     @State private var country = ""
     @State private var startDate = Date()
     @State private var endDate = Date()
+    @State private var buildingType: BuildingType = .house
 
     // Validation
     @State private var showAlert = false
@@ -40,7 +41,8 @@ struct AddPlaceManualView: View {
                 Section(header: Text("Address Details")) {
                     TextField("Address Line 1", text: $addressLine1)
                     TextField("Address Line 2", text: $addressLine2)
-                    TextField("Apartment/House Number", text: $apartmentNumber)
+                
+                    TextField("Apartment/House/Building Number", text: $apartmentNumber)
                         .keyboardType(.decimalPad)
 
                     Picker("Country", selection: $selectedCountry) {
@@ -68,14 +70,22 @@ struct AddPlaceManualView: View {
 
                     TextField("Postal Code", text: $postalCode)
                 }
-
-                Section(header: Text("Dates")) {
-                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+                
+                Section("Building Type") {
+                    buildingTypePicker
+                        .listRowInsets(.init(top: 12, leading: 12, bottom: 12, trailing: 12))
+                }
+               
+                if buildingType != .place  {
+                    Section(header: Text("Dates")) {
+                        DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+                    }
                 }
             }
             .navigationTitle("Add Address Manually")
             .navigationBarTitleDisplayMode(.inline)
+            .animation(.smooth, value: buildingType)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Invalid Input"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
@@ -93,7 +103,11 @@ struct AddPlaceManualView: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.72)])
+        .presentationDetents([.fraction(0.72), .large])
+    }
+    
+    private var buildingTypePicker: some View {
+        CustomPlaceTypePicker(type: $buildingType)
     }
 
     private func isFormValid() -> Bool {
@@ -120,6 +134,7 @@ struct AddPlaceManualView: View {
             postcode: postalCode,
             country: country,
             placeType: .residential,
+            buildingType: buildingType,
             startDate: startDate,
             endDate: endDate
         )
@@ -127,5 +142,49 @@ struct AddPlaceManualView: View {
         modelContext.insert(place)
         try? modelContext.save()
         dismiss()
+    }
+}
+
+
+struct CustomPlaceTypePicker: View {
+    
+    @Binding var type: BuildingType
+    
+    var body: some View {
+        HStack {
+            ForEach(BuildingType.allCases, id: \.self) { placeType in
+                Button {
+                    withAnimation {
+                        type = placeType
+                    }
+                } label: {
+                    CustomPickerItem(type: placeType, isSelected: type == placeType)
+                }
+                .contentShape(.rect)
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+struct CustomPickerItem: View {
+    
+    @AppStorage("tint") private var tint: Tint = .blue
+    let type: BuildingType
+    let isSelected: Bool
+    
+    var body: some View {
+        HStack {
+            Image(systemName: type.iconName)
+            Text(type.rawValue.capitalized)
+        }
+        .font(.subheadline)
+        .foregroundStyle(.white)
+        .padding(8)
+        .hSpacing(.center)
+        .vSpacing(.center)
+        .frame(height: 40)
+        .background(isSelected ? tint.color.gradient : Color.secondary.gradient,
+                    in: .rect(cornerRadius: 10))
     }
 }

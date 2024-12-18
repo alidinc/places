@@ -71,7 +71,7 @@ struct AddressSearchView: View {
     }
 
     private func calculateDynamicHeight() -> CGFloat {
-        let baseRowHeight: CGFloat = 120 // Adjust to match the actual height of each row
+        let baseRowHeight: CGFloat = 140 // Adjust to match the actual height of each row
         let maxVisibleRows: Int = 3    // Limit the number of rows to show at once
         let maxHeight = CGFloat(maxVisibleRows) * baseRowHeight
         return min(CGFloat(vm.searchResults.count) * baseRowHeight, maxHeight)
@@ -79,7 +79,7 @@ struct AddressSearchView: View {
 
     private var SearchTextField: some View {
         HStack(spacing: 10) {
-            TextField("Search for address", text: $vm.searchQuery)
+            TextField("Search here...", text: $vm.searchQuery)
                 .textFieldStyle(.plain)
                 .padding(.horizontal)
                 .padding(.vertical, 12)

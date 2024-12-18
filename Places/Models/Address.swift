@@ -23,6 +23,7 @@ class Address: Identifiable {
     var sublocality: String?
     var locality: String?
     var placeType: AddressType
+    var buildingType: BuildingType
     var startDate: Date?
     var endDate: Date?
 
@@ -39,6 +40,7 @@ class Address: Identifiable {
         postcode: String,
         country: Country?,
         placeType: AddressType,
+        buildingType: BuildingType,
         startDate: Date? = nil,
         endDate: Date? = nil
     ) {
@@ -54,6 +56,7 @@ class Address: Identifiable {
         self.postcode = postcode
         self.country = country
         self.placeType = placeType
+        self.buildingType = buildingType
         self.startDate = startDate
         self.endDate = endDate
     }
@@ -69,7 +72,11 @@ extension Address {
         }
 
         if !apartmentNumber.isEmpty {
-            addressLines.append(apartmentNumber)
+            if buildingType == .flat {
+                addressLines.append("\(buildingType.rawValue) \(apartmentNumber)")
+            } else {
+                addressLines.append(apartmentNumber)
+            }
         }
         
         if let name, !name.isEmpty {

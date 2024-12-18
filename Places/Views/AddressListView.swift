@@ -12,6 +12,7 @@ struct AddressListView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Environment(CountryViewModel.self) private var countryVm
+    @Environment(\.colorScheme) private var scheme
     @State private var placeToEdit: Address?
     @State private var placeToDelete: Address?
     @State private var showDeleteAlert = false
@@ -22,6 +23,7 @@ struct AddressListView: View {
         Group {
             if savedAddresses.isEmpty {
                 unavailableView
+                    .ignoresSafeArea()
             } else {
                 listView
             }
@@ -49,7 +51,7 @@ struct AddressListView: View {
             systemImage: "pin.fill",
             description: Text("Don't have any addresses yet.")
         )
-        .padding()
+        .padding(.bottom, 100)
     }
 
     private var listView: some View {
@@ -112,7 +114,8 @@ struct AddressListView: View {
             Text(country.country.isEmpty ? "Unknown Country" : country.country)
                 .font(.headline)
         }
-        .padding(.leading)
+        .padding(.horizontal, 18)
+        .padding(.bottom, 4)
     }
 
     // MARK: - Grouped Addresses

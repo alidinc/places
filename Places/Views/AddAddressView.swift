@@ -15,6 +15,7 @@ struct AddAddressView: View {
     @AppStorage("tint") private var tint: Tint = .blue
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(\.colorScheme) private var scheme
     @Environment(CountryViewModel.self) var viewModel
 
     @State private var selectedPlaceType: AddressType = .residential
@@ -22,20 +23,24 @@ struct AddAddressView: View {
     @State private var endDate: Date?
     @State private var apartmentNumber = ""
     @State private var currentAddress = false
+    @State private var buildingType: BuildingType = .house
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 16) {
-                    datePickerSection
-                    if !currentAddress { endDatePickerSection }
-                    toggleSection
-                    textFieldSection
+                    buildingTypePicker
+                    if buildingType != .place {
+                        datePickerSection
+                        if !currentAddress { endDatePickerSection }
+                        toggleSection
+                        apartmentNumberSection
+                    }
+                    
+                    address
                 }
                 .padding()
                 .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))
-
-                address
 
                 Spacer()
 
@@ -63,20 +68,39 @@ struct AddAddressView: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.65)])
+        .presentationDetents([.fraction(0.75)])
     }
 
     @ViewBuilder
     private var address: some View {
-        if apartmentNumber.isEmpty {
-            Text(result.searchAddress)
-                .font(.headline.weight(.semibold))
-                .padding(12)
-        } else {
-            Text("\(apartmentNumber), \(result.searchAddress)")
-                .font(.headline.weight(.semibold))
-                .padding(12)
+        Group {
+            if apartmentNumber.isEmpty {
+                Text(result.searchAddress)
+            } else {
+                if buildingType == .flat {
+                    Text("\(buildingType.rawValue) \(apartmentNumber), \(result.searchAddress)")
+                       
+                } else {
+                    Text("\(apartmentNumber), \(result.searchAddress)")
+                }
+            }
         }
+        .font(.headline.weight(.semibold))
+        .padding(12)
+        .foregroundStyle(tint.color.gradient)
+        .hSpacing(.leading)
+        .background(scheme == .dark ? .black.opacity(0.75) : .white.opacity(0.75), in: .rect(cornerRadius: 12))
+    }
+    
+    private var buildingTypePicker: some View {
+        Picker(selection: $buildingType) {
+            ForEach(BuildingType.allCases, id: \.self) {
+                Text($0.rawValue).tag($0)
+            }
+        } label: {
+            Text(buildingType.rawValue)
+        }
+        .pickerStyle(.segmented)
     }
 
     private var datePickerSection: some View {
@@ -124,7 +148,7 @@ struct AddAddressView: View {
         }
     }
 
-    private var textFieldSection: some View {
+    private var apartmentNumberSection: some View {
         HStack {
             Text("Apartment/House Number")
                 .font(.subheadline.weight(.medium))
@@ -176,6 +200,7 @@ struct AddAddressView: View {
             postcode: postcode,
             country: country,
             placeType: .residential,
+            buildingType: buildingType,
             startDate: startDate,
             endDate: endDate
         )

@@ -56,7 +56,10 @@ struct SettingsView: View {
                           subtitle: Constants.Text.PurchaseMessage,
                           primaryActions: [.init(title: "OK", action: { showThanks = false }) ])
         )
-        .sheet(isPresented: $showShareSheet) { ActivityView(activityItems: [URL(string: Constants.URLs.AppStoreURL)!]) }
+        .sheet(isPresented: $showShareSheet) {
+            ActivityView(activityItems: [URL(string: Constants.URLs.AppStoreURL)!])
+                .presentationDetents([.medium, .large])
+        }
         .sheet(isPresented: $showSendEmail, content: {
             MailView(supportEmail: $email) { result in
                 switch result {

@@ -47,6 +47,7 @@ struct ContentView: View {
 
     private var Shade: some View {
         Color.black
+            .animation(.smooth, value: vm.searchResults)
             .opacity(vm.searchResults.count >= 1 ? 0.75 : 0)
             .ignoresSafeArea()
             .onTapGesture {
