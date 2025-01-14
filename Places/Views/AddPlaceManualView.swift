@@ -13,17 +13,7 @@ struct AddPlaceManualView: View {
     @Environment(\.modelContext) private var modelContext
 
     // Address fields
-    @State private var apartmentNumber = ""
-    @State private var addressLine1 = ""
-    @State private var addressLine2 = ""
-    @State private var sublocality = ""
-    @State private var locality = ""
-    @State private var city = ""
-    @State private var postalCode = ""
-    @State private var country = ""
-    @State private var startDate = Date()
-    @State private var endDate = Date()
-    @State private var buildingType: BuildingType = .house
+    @State private var addressFields = AddressFields()
 
     // Validation
     @State private var showAlert = false
@@ -37,55 +27,13 @@ struct AddPlaceManualView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Address Section
                 Section(header: Text("Address Details")) {
-                    TextField("Address Line 1", text: $addressLine1)
-                    TextField("Address Line 2", text: $addressLine2)
-                
-                    TextField("Apartment/House/Building Number", text: $apartmentNumber)
-                        .keyboardType(.decimalPad)
-
-                    Picker("Country", selection: $selectedCountry) {
-                        Text("Select a Country").tag("Select")
-                        ForEach(viewModel.countries, id: \.hashValue) { country in
-                            Text(country.country).tag(country)
-                        }
-                    }
-                    .onChange(of: selectedCountry) { _, newValue in
-                        selectedCity = ""
-                        country = newValue?.country ?? ""
-                    }
-                    
-                    if let selectedCountry {
-                        Picker("City", selection: $selectedCity) {
-                            Text("Select a City").tag("Select")
-                            ForEach(selectedCountry.cities.sorted(by: { $0 < $1 }), id: \.self) { city in
-                                Text(city).tag(city)
-                            }
-                        }
-                        .onChange(of: selectedCity) { _, newValue in
-                            city = newValue
-                        }
-                    }
-
-                    TextField("Postal Code", text: $postalCode)
-                }
-                
-                Section("Building Type") {
-                    buildingTypePicker
-                        .listRowInsets(.init(top: 12, leading: 12, bottom: 12, trailing: 12))
-                }
-               
-                if buildingType != .place  {
-                    Section(header: Text("Dates")) {
-                        DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
-                    }
+                    AddressDetailsSection(addressFields: $addressFields)
                 }
             }
             .navigationTitle("Add Address Manually")
             .navigationBarTitleDisplayMode(.inline)
-            .animation(.smooth, value: buildingType)
+            .animation(.smooth, value: addressFields.buildingType)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Invalid Input"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
@@ -94,7 +42,7 @@ struct AddPlaceManualView: View {
                     Button("Save") {
                         savePlace()
                     }
-                    .disabled(!isFormValid())
+                    .disabled(!addressFields.isValid)
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -103,40 +51,29 @@ struct AddPlaceManualView: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.72), .large])
-    }
-    
-    private var buildingTypePicker: some View {
-        CustomPlaceTypePicker(type: $buildingType)
-    }
-
-    private func isFormValid() -> Bool {
-        !addressLine1.isEmpty &&
-        !city.isEmpty &&
-        !country.isEmpty &&
-        startDate <= endDate
+        .presentationDetents([.fraction(0.65)])
     }
 
     private func savePlace() {
-        guard isFormValid() else {
+        guard addressFields.isValid else {
             alertMessage = "Please fill in all required fields."
             showAlert = true
             return
         }
         
-        let country = viewModel.countries.first(where: { $0.country.lowercased() == self.country })
+        let country = viewModel.countries.first(where: { $0.country.lowercased() == addressFields.country.lowercased() })
 
         let place = Address(
-            apartmentNumber: apartmentNumber,
-            addressLine1: addressLine1,
-            addressLine2: addressLine2,
-            city: city,
-            postcode: postalCode,
+            apartmentNumber: addressFields.apartmentNumber,
+            addressLine1: addressFields.addressLine1,
+            addressLine2: addressFields.addressLine2,
+            city: addressFields.city,
+            postcode: addressFields.postalCode,
             country: country,
-            placeType: .residential,
-            buildingType: buildingType,
-            startDate: startDate,
-            endDate: endDate
+            buildingType: addressFields.buildingType,
+            startDate: addressFields.startDate,
+            endDate: addressFields.endDate,
+            isCurrent: addressFields.currentAddress
         )
 
         modelContext.insert(place)
@@ -146,45 +83,173 @@ struct AddPlaceManualView: View {
 }
 
 
-struct CustomPlaceTypePicker: View {
+struct AddressDetailsSection: View {
+    // MARK: - Properties
+    @Binding var addressFields: AddressFields
+    @Environment(CountryViewModel.self) var viewModel
     
-    @Binding var type: BuildingType
-    
+    // MARK: - Body
     var body: some View {
-        HStack {
-            ForEach(BuildingType.allCases, id: \.self) { placeType in
-                Button {
-                    withAnimation {
-                        type = placeType
-                    }
-                } label: {
-                    CustomPickerItem(type: placeType, isSelected: type == placeType)
-                }
-                .contentShape(.rect)
-                .buttonStyle(.plain)
-            }
+        Group {
+            basicAddressFields
+            buildingTypeAndNumber
+            locationFields
+            statusFields
+            dateFields
         }
     }
 }
 
-struct CustomPickerItem: View {
-    
-    @AppStorage("tint") private var tint: Tint = .blue
-    let type: BuildingType
-    let isSelected: Bool
-    
-    var body: some View {
-        HStack {
-            Image(systemName: type.iconName)
-            Text(type.rawValue.capitalized)
+// MARK: - Subviews
+private extension AddressDetailsSection {
+    var basicAddressFields: some View {
+        Group {
+            TextField("Address Line 1", text: $addressFields.addressLine1)
+            TextField("Address Line 2", text: $addressFields.addressLine2)
+            TextField("Postal Code", text: $addressFields.postalCode)
         }
-        .font(.subheadline)
-        .foregroundStyle(.white)
-        .padding(8)
-        .hSpacing(.center)
-        .vSpacing(.center)
-        .frame(height: 40)
-        .background(isSelected ? tint.color.gradient : Color.secondary.gradient,
-                    in: .rect(cornerRadius: 10))
     }
+    
+    var buildingTypeAndNumber: some View {
+        HStack {
+            buildingTypeMenu
+            Spacer()
+            TextField("Apartment/House/Building Number", text: $addressFields.apartmentNumber)
+                .keyboardType(.decimalPad)
+        }.hSpacing(.leading)
+    }
+    
+    var buildingTypeMenu: some View {
+        Menu {
+            ForEach(BuildingType.allCases, id: \.self) { type in
+                Button {
+                    addressFields.buildingType = type
+                } label: {
+                    Text(type.rawValue)
+                }
+                .tag(type)
+            }
+        } label: {
+            HStack {
+                Text(addressFields.buildingType.rawValue)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+            }
+        }
+    }
+    
+    var locationFields: some View {
+        Group {
+            countryPicker
+            if let selectedCountry = addressFields.selectedCountry {
+                cityPicker(for: selectedCountry)
+            }
+        }
+    }
+    
+    var countryPicker: some View {
+        Picker(selection: $addressFields.selectedCountry) {
+            Text("Select a Country").tag("Select")
+            ForEach(viewModel.countries, id: \.hashValue) { country in
+                Text(country.country).tag(country)
+            }
+        } label: {
+            pickerLabel("Country")
+        }
+        .onChange(of: addressFields.selectedCountry) { _, newValue in
+            handleCountrySelection(newValue)
+        }
+    }
+    
+    func cityPicker(for country: Country) -> some View {
+        Picker(selection: $addressFields.selectedCity) {
+            Text("Select a City").tag("Select")
+            ForEach(country.cities.sorted(by: { $0 < $1 }), id: \.self) { city in
+                Text(city).tag(city)
+            }
+        } label: {
+            pickerLabel("City")
+        }
+        .onChange(of: addressFields.selectedCity) { _, newValue in
+            addressFields.city = newValue
+        }
+    }
+    
+    var statusFields: some View {
+        HStack {
+            Text("Is this your current address?")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+            Spacer()
+            Toggle("", isOn: $addressFields.currentAddress)
+                .labelsHidden()
+                .tint(.green)
+        }
+    }
+    
+    var dateFields: some View {
+        Group {
+            dateField(title: "Start Date", date: $addressFields.startDate)
+            dateField(title: "End Date", date: $addressFields.endDate)
+        }
+    }
+}
+
+// MARK: - Helper Views
+private extension AddressDetailsSection {
+    func pickerLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(.secondary)
+    }
+    
+    func dateField(title: String, date: Binding<Date>) -> some View {
+        HStack {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+            Spacer()
+            DatePicker("", selection: date, displayedComponents: .date)
+                .datePickerStyle(.compact)
+                .labelsHidden()
+        }
+    }
+}
+
+// MARK: - Helper Methods
+private extension AddressDetailsSection {
+    func handleCountrySelection(_ country: Country?) {
+        addressFields.selectedCity = ""
+        addressFields.country = country?.country ?? ""
+    }
+}
+
+// MARK: - AddressFields Model
+@Observable
+class AddressFields {
+    // MARK: - Properties
+    var apartmentNumber = ""
+    var addressLine1 = ""
+    var addressLine2 = ""
+    var sublocality = ""
+    var locality = ""
+    var city = ""
+    var postalCode = ""
+    var country = ""
+    var startDate = Date()
+    var endDate = Date()
+    var currentAddress = false
+    var buildingType: BuildingType = .flat
+    var selectedCountry: Country? = nil
+    var selectedCity: String = ""
+    
+    // MARK: - Validation
+    var isValid: Bool {
+        !addressLine1.isEmpty &&
+        !city.isEmpty &&
+        !country.isEmpty &&
+        startDate <= endDate
+    }
+    
+    init() {}
 }

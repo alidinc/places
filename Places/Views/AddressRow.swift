@@ -17,58 +17,67 @@ struct AddressRow: View {
     @State private var showingCopyAlert = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            AddressLineView
-            DurationView
+        VStack(alignment: .leading, spacing: 20) {
+            addressButton
+            durationInfo
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .alert(isPresented: $showingCopyAlert) {
-            Alert(title: Text("Copied"),
-                  message: Text("Address copied to clipboard"),
-                  dismissButton: .default(Text("OK")))
+        .background(.clear)
+        .alert("Copied", isPresented: $showingCopyAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Address copied to clipboard")
         }
     }
 
-    private var AddressLineView: some View {
+    private var addressButton: some View {
         Button {
-            UIPasteboard.general.string = place.fullAddress
-            showingCopyAlert = true
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            copyToClipboard()
         } label: {
             Text(place.fullAddress)
                 .font(.subheadline.weight(.medium))
         }
     }
 
-    @ViewBuilder
-    private var DurationView: some View {
-        if let startDate = place.startDate {
+    private var durationInfo: some View {
+        Group {
             HStack {
-                Group {
-                    if let endDate = place.endDate {
-                        Text("\(startDate.formatted(.dateTime.day().month().year())) • \(endDate.formatted(.dateTime.day().month().year()))")
-                    } else {
-                        HStack {
-                            Circle().fill(.green).frame(width: 6, height: 6)
-                            Text("\(startDate.formatted(.dateTime.day().month().year())) • Present")
-                        }
-                    }
-                }
-                .font(.caption.weight(.medium))
-                .foregroundStyle(tint.color.opacity(0.85))
-                
+                dateRangeText
                 Spacer()
-
-                Text(place.durationString)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
                 
-                Image(systemName: place.buildingType.iconName)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Text(place.durationString)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Image(systemName: place.buildingType.iconName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
         }
+    }
+
+    private var dateRangeText: some View {
+        Group {
+            if let startDate = place.startDate {
+                if let startDate = place.startDate, place.isCurrent {
+                    Text("\(startDate.formatted(.dateTime.day().month().year())) • Present")
+                        .foregroundStyle(tint.color)
+                } else if let endDate = place.endDate {
+                    Text("\(startDate.formatted(.dateTime.day().month().year())) • \(endDate.formatted(.dateTime.day().month().year()))")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .font(.caption.weight(.medium))
+    }
+
+    private func copyToClipboard() {
+        UIPasteboard.general.string = place.fullAddress
+        showingCopyAlert = true
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }

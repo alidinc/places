@@ -22,10 +22,10 @@ class Address: Identifiable {
     var country: Country?
     var sublocality: String?
     var locality: String?
-    var placeType: AddressType
     var buildingType: BuildingType
     var startDate: Date?
     var endDate: Date?
+    var isCurrent: Bool
 
     init(
         id: UUID = UUID(),
@@ -39,10 +39,10 @@ class Address: Identifiable {
         city: String,
         postcode: String,
         country: Country?,
-        placeType: AddressType,
         buildingType: BuildingType,
         startDate: Date? = nil,
-        endDate: Date? = nil
+        endDate: Date? = nil,
+        isCurrent: Bool
     ) {
         self.id = id
         self.title = title
@@ -55,10 +55,10 @@ class Address: Identifiable {
         self.city = city
         self.postcode = postcode
         self.country = country
-        self.placeType = placeType
         self.buildingType = buildingType
         self.startDate = startDate
         self.endDate = endDate
+        self.isCurrent = isCurrent
     }
 }
 
@@ -67,10 +67,6 @@ extension Address {
     var fullAddress: String {
         var addressLines = [String]()
         
-        if let title, !title.isEmpty, let name, title != name {
-            addressLines.append(title)
-        }
-
         if !apartmentNumber.isEmpty {
             if buildingType == .flat {
                 addressLines.append("\(buildingType.rawValue) \(apartmentNumber)")
@@ -79,28 +75,24 @@ extension Address {
             }
         }
         
-        if let name, !name.isEmpty {
-            addressLines.append(name)
-        } else {
-            if !addressLine1.isEmpty {
-                if !addressLine2.isEmpty {
-                    addressLines.append("\(addressLine2) \(addressLine1)")
-                } else {
-                    addressLines.append(addressLine1)
-                }
+        if !addressLine1.isEmpty {
+            if !addressLine2.isEmpty {
+                addressLines.append("\(addressLine2) \(addressLine1)")
+            } else {
+                addressLines.append(addressLine1)
             }
-        }
-
-        if let sublocality, !sublocality.isEmpty {
-            addressLines.append(sublocality)
         }
         
         if let locality, !locality.isEmpty {
             addressLines.append(locality)
-        }
-
-        if !city.isEmpty {
-            addressLines.append(city)
+            
+            if let sublocality, !sublocality.isEmpty, locality.lowercased() != sublocality.lowercased() {
+                addressLines.append(sublocality)
+            }
+            
+            if !city.isEmpty, locality.lowercased() != city.lowercased() {
+                addressLines.append(city)
+            }
         }
 
         if !postcode.isEmpty {

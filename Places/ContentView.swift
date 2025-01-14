@@ -23,16 +23,17 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                VStack {
-                    HeaderView()
+                VStack(spacing: 16) {
+                    Header
                     AddressListView()
                 }
-
+                
                 Shade
             }
             .gradientBackground()
-            .safeAreaInset(edge: .bottom) { AddressSearchView(vm: vm, showAddManual: $showAddManual, isFocused: $focused) }
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { SettingsButton } }
+            .safeAreaInset(edge: .bottom) {
+                AddressSearchView(vm: vm, showAddManual: $showAddManual, isFocused: $focused)
+            }
             .sheet(isPresented: $showAddManual) { AddPlaceManualView() }
             .sheet(item: $vm.selectedSearchResult) { place in
                 AddAddressView(result: place) { place in
@@ -43,6 +44,15 @@ struct ContentView: View {
                 }
             }
         }
+    }
+    
+    private var Header: some View {
+        HStack {
+            Spacer()
+            
+            SettingsButton
+        }
+        .padding(.horizontal, 20)
     }
 
     private var Shade: some View {

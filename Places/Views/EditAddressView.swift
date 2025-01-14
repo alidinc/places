@@ -26,6 +26,8 @@ struct EditAddressView: View {
     @State private var country: Country?
     @State private var startDate = Date()
     @State private var endDate = Date()
+    @State private var isCurrent = false
+    @State private var buildingType: BuildingType = .flat
 
     // Country and City Picker
     @Environment(CountryViewModel.self) var viewModel
@@ -42,8 +44,15 @@ struct EditAddressView: View {
                         TextField("Address Line 1", text: $name)
                     }
                    
-                    TextField("Apartment/House Number", text: $apartmentNumber)
-                        .keyboardType(.decimalPad)
+                    HStack {
+                        buildingTypeMenu
+                        Spacer()
+                        TextField("Apartment/House Number", text: $apartmentNumber)
+                            .keyboardType(.decimalPad)
+                    }
+                    .hSpacing(.leading)
+                    
+                    TextField("Postal Code", text: $postcode)
 
                     Picker(selection: $country) {
                         ForEach(viewModel.countries, id: \.hashValue) { country in
@@ -58,13 +67,36 @@ struct EditAddressView: View {
                     TextField("City", text: $city)
                 
                     TextField("State", text: $sublocality)
-
-                    TextField("Postal Code", text: $postcode)
-                }
-
-                Section(header: Text("Dates")) {
-                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                    DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+                    
+                    HStack {
+                        Text("Is this your current address?")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Toggle("", isOn: $isCurrent)
+                            .labelsHidden()
+                            .tint(.green)
+                    }
+                    
+                    HStack {
+                        Text("Start Date")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        DatePicker("", selection: $startDate, displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .labelsHidden()
+                    }
+                    
+                    HStack {
+                        Text("End Date")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        DatePicker("", selection: $endDate, displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .labelsHidden()
+                    }
                 }
             }
             .navigationTitle("Edit Address")
@@ -90,6 +122,25 @@ struct EditAddressView: View {
         .presentationDetents([.fraction(0.72), .large])
     }
     
+    var buildingTypeMenu: some View {
+        Menu {
+            ForEach(BuildingType.allCases, id: \.self) { type in
+                Button {
+                    self.buildingType = type
+                } label: {
+                    Text(type.rawValue)
+                }
+                .tag(type)
+            }
+        } label: {
+            HStack {
+                Text(buildingType.rawValue)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+            }
+        }
+    }
+    
     @MainActor
     private func loadPlaceDetails() {
         
@@ -109,6 +160,9 @@ struct EditAddressView: View {
         
         startDate = place.startDate ?? .now
         endDate = place.endDate ?? .now
+        
+        isCurrent = place.isCurrent
+        buildingType = place.buildingType
 
         if let country {
             if country.country.lowercased() == "türkiye" {
@@ -118,24 +172,6 @@ struct EditAddressView: View {
             }
         } else {
             self.city = place.city
-        }
-    }
-
-    private func findCityAsync(cityToFind: String, in country: Country) async {
-        // Perform the search in the background
-        let citySet = Set(country.cities.map { $0.lowercased() })
-
-        // Perform the search asynchronously
-        if citySet.contains(cityToFind.lowercased()) {
-            DispatchQueue.main.async {
-                // If the city is found in the set, assign it to `city`
-                city = cityToFind
-            }
-        } else {
-            DispatchQueue.main.async {
-                // If no matching city is found, set city to an empty string
-                city = ""
-            }
         }
     }
     
@@ -148,6 +184,9 @@ struct EditAddressView: View {
         place.postcode = postcode
         place.startDate = startDate
         place.endDate = endDate
+        place.sublocality = sublocality
+        place.isCurrent = isCurrent
+        place.buildingType = buildingType
 
         dismiss()
     }

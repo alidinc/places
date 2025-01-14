@@ -66,9 +66,7 @@ struct AddressListView: View {
                             }
                     }
                 } header: {
-                    if let country {
-                        sectionHeader(for: country)
-                    }
+                    sectionHeader(for: country)
                 }
             }
             .listRowInsets(.init())
@@ -76,7 +74,7 @@ struct AddressListView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
+        .background(.ultraThinMaterial)
         .clipShape(.rect(cornerRadius: 12))
         .padding(.horizontal)
         .padding(.bottom)
@@ -105,14 +103,19 @@ struct AddressListView: View {
 
     // MARK: - Section Header
 
-    private func sectionHeader(for country: Country) -> some View {
+    private func sectionHeader(for country: Country?) -> some View {
         HStack {
-            if let flag = countryVm.countryFlags.first(where: { $0.name?.lowercased() == country.country.lowercased() }) {
-                Text(flag.unicodeFlag ?? "")
-            }
+            if let country {
+                if let flag = countryVm.countryFlags.first(where: { $0.name?.lowercased() == country.country.lowercased() }) {
+                    Text(flag.unicodeFlag ?? "")
+                }
 
-            Text(country.country.isEmpty ? "Unknown Country" : country.country)
-                .font(.headline)
+                Text(country.country.isEmpty ? "Unknown Country" : country.country)
+                    .font(.headline)
+            } else {
+                Text("Unknown Country")
+                    .font(.headline)
+            }
         }
         .padding(.horizontal, 18)
         .padding(.bottom, 4)

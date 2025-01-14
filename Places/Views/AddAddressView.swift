@@ -18,7 +18,6 @@ struct AddAddressView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(CountryViewModel.self) var viewModel
 
-    @State private var selectedPlaceType: AddressType = .residential
     @State private var startDate = Date()
     @State private var endDate: Date?
     @State private var apartmentNumber = ""
@@ -29,13 +28,11 @@ struct AddAddressView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 16) {
+                    datePickerSection
+                    if !currentAddress { endDatePickerSection }
+                    toggleSection
                     buildingTypePicker
-                    if buildingType != .place {
-                        datePickerSection
-                        if !currentAddress { endDatePickerSection }
-                        toggleSection
-                        apartmentNumberSection
-                    }
+                    apartmentNumberSection
                     
                     address
                 }
@@ -47,7 +44,7 @@ struct AddAddressView: View {
                 saveButton
             }
             .padding()
-            .navigationTitle("Add Place")
+            .navigationTitle("Add Address")
             .navigationBarTitleDisplayMode(.inline)
             .animation(.smooth, value: currentAddress)
             .animation(.smooth, value: apartmentNumber)
@@ -125,11 +122,6 @@ struct AddAddressView: View {
                 .labelsHidden()
                 .tint(.green)
         }
-        .onChange(of: currentAddress) { oldValue, newValue in
-            if newValue {
-                endDate = nil
-            }
-        }
     }
 
     private var endDatePickerSection: some View {
@@ -157,6 +149,7 @@ struct AddAddressView: View {
             TextField("No", text: $apartmentNumber)
                 .padding(.trailing, 50)
                 .frame(maxWidth: 150)
+                .keyboardType(.decimalPad)
                 .showClearButton($apartmentNumber, action: { apartmentNumber = "" })
         }
     }
@@ -199,16 +192,17 @@ struct AddAddressView: View {
             city: city,
             postcode: postcode,
             country: country,
-            placeType: .residential,
             buildingType: buildingType,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            isCurrent: currentAddress
         )
 
         withAnimation {
             context.insert(place)
             try? context.save()
         }
+        
         onDismiss(place)
         dismiss()
     }
