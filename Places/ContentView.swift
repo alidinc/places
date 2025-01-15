@@ -12,59 +12,40 @@ import SwiftData
 struct ContentView: View {
 
     @AppStorage("tint") private var tint: Tint = .blue
-    @Bindable var vm: AddressLookUpViewModel
     @Bindable var language: LanguageManager
    
     @Environment(\.modelContext) private var modelContext
     @State private var focused = false
-    @State private var showAddManual = false
+    @State private var showAddAddress = false
 
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack(spacing: 16) {
-                    Header
-                    AddressListView()
-                }
-                
-                Shade
+            VStack(spacing: 16) {
+                Header
+                HeaderView()
+                AddressListView()
             }
             .gradientBackground()
-            .safeAreaInset(edge: .bottom) {
-                AddressSearchView(vm: vm, showAddManual: $showAddManual, isFocused: $focused)
-            }
-            .sheet(isPresented: $showAddManual) { AddPlaceManualView() }
-            .sheet(item: $vm.selectedSearchResult) { place in
-                AddAddressView(result: place) { place in
-                    vm.selectedSearchResult = nil
-                    vm.searchQuery = ""
-                    vm.searchResults = []
-                    focused = false
-                }
-            }
+            .sheet(isPresented: $showAddAddress) { AddAddressView() }
         }
     }
     
     private var Header: some View {
         HStack {
+            Button {
+                showAddAddress = true
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(tint.color.gradient)
+            }
+            
             Spacer()
             
             SettingsButton
         }
         .padding(.horizontal, 20)
-    }
-
-    private var Shade: some View {
-        Color.black
-            .animation(.smooth, value: vm.searchResults)
-            .opacity(vm.searchResults.count >= 1 ? 0.75 : 0)
-            .ignoresSafeArea()
-            .onTapGesture {
-                vm.searchQuery = ""
-                vm.searchResults = []
-                focused = false
-            }
     }
 
     private var SettingsButton: some View {

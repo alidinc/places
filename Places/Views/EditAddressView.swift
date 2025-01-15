@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct EditAddressView: View {
 
@@ -17,17 +18,16 @@ struct EditAddressView: View {
 
     // Address fields
     @State private var apartmentNumber = ""
-    @State private var name = ""
     @State private var addressLine1 = ""
     @State private var addressLine2 = ""
     @State private var city = ""
     @State private var sublocality = ""
     @State private var postcode = ""
-    @State private var country: Country?
+    @State private var country: String = ""
     @State private var startDate = Date()
     @State private var endDate = Date()
-    @State private var isCurrent = false
     @State private var buildingType: BuildingType = .flat
+    @State private var isCurrent = false
 
     // Country and City Picker
     @Environment(CountryViewModel.self) var viewModel
@@ -37,12 +37,8 @@ struct EditAddressView: View {
             Form {
                 // Address Section
                 Section(header: Text("Address Details")) {
-                    if let name = place.name, name.isEmpty {
-                        TextField("Address Line 1", text: $addressLine1)
-                        TextField("Address Line 2", text: $addressLine2)
-                    } else {
-                        TextField("Address Line 1", text: $name)
-                    }
+                    TextField("Address Line 1", text: $addressLine1)
+                    TextField("Address Line 2", text: $addressLine2)
                    
                     HStack {
                         buildingTypeMenu
@@ -54,28 +50,32 @@ struct EditAddressView: View {
                     
                     TextField("Postal Code", text: $postcode)
 
-                    Picker(selection: $country) {
-                        ForEach(viewModel.countries, id: \.hashValue) { country in
-                            Text(country.country).tag(country as Country?)
-                        }
-                    } label: {
-                        Text("Select a Country")
+                    HStack {
+                        Text("Country")
                             .foregroundStyle(.secondary)
                             .font(.subheadline)
+                        
+                        Spacer()
+                        TextField("Country", text: $country)
+                            .multilineTextAlignment(.trailing)
                     }
 
-                    TextField("City", text: $city)
-                
-                    TextField("State", text: $sublocality)
+                    HStack {
+                        Text("City")
+                            .foregroundStyle(.secondary)
+                            .font(.subheadline)
+                        Spacer()
+                        TextField("City", text: $city)
+                            .multilineTextAlignment(.trailing)
+                    }
                     
                     HStack {
-                        Text("Is this your current address?")
-                            .font(.subheadline.weight(.medium))
+                        Text("Sublocality")
                             .foregroundStyle(.secondary)
+                            .font(.subheadline)
                         Spacer()
-                        Toggle("", isOn: $isCurrent)
-                            .labelsHidden()
-                            .tint(.green)
+                        TextField("State", text: $sublocality)
+                            .multilineTextAlignment(.trailing)
                     }
                     
                     HStack {
@@ -88,14 +88,26 @@ struct EditAddressView: View {
                             .labelsHidden()
                     }
                     
+                    if !isCurrent {
+                        HStack {
+                            Text("End Date")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            DatePicker("", selection: $endDate, displayedComponents: .date)
+                                .datePickerStyle(.compact)
+                                .labelsHidden()
+                        }
+                    }
+                    
                     HStack {
-                        Text("End Date")
+                        Text("Is this your current address?")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
                         Spacer()
-                        DatePicker("", selection: $endDate, displayedComponents: .date)
-                            .datePickerStyle(.compact)
+                        Toggle("", isOn: $isCurrent)
                             .labelsHidden()
+                            .tint(.green)
                     }
                 }
             }
@@ -104,6 +116,9 @@ struct EditAddressView: View {
             .onAppear {
                  loadPlaceDetails()
             }
+            .onDisappear(perform: {
+                updateOtherAddressesCurrentStatus()
+            })
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -119,7 +134,7 @@ struct EditAddressView: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.72), .large])
+        .presentationDetents([.fraction(0.75), .large])
     }
     
     var buildingTypeMenu: some View {
@@ -141,50 +156,48 @@ struct EditAddressView: View {
         }
     }
     
+    private func updateOtherAddressesCurrentStatus() {
+        // Get all addresses except the current one
+        if place.isCurrent {
+            let descriptor = FetchDescriptor<Address>(sortBy: [SortDescriptor(\Address.endDate)])
+            if let addresses = try? modelContext.fetch(descriptor) {
+                // Update all other addresses to not be current
+                for address in addresses where address.id != place.id {
+                    withAnimation {
+                        address.isCurrent = false
+                    }
+                    try? modelContext.save()
+                }
+            }
+        }
+    }
+    
     @MainActor
     private func loadPlaceDetails() {
-        
-        if let name = place.name {
-            self.name = name
-        }
-       
         addressLine1 = place.addressLine1
         addressLine2 = place.addressLine2
         apartmentNumber = place.apartmentNumber
+        sublocality = place.sublocality ?? ""
         postcode = place.postcode
         country = place.country
-        
-        if let sublocality = place.sublocality {
-            self.sublocality = sublocality
-        }
-        
         startDate = place.startDate ?? .now
         endDate = place.endDate ?? .now
-        
         isCurrent = place.isCurrent
         buildingType = place.buildingType
-
-        if let country {
-            if country.country.lowercased() == "türkiye" {
-                self.city = place.city
-            } else {
-                self.city = place.locality ?? place.city
-            }
-        } else {
-            self.city = place.city
-        }
+        city = place.city
+        country = place.country
     }
     
     private func saveChanges() {
         place.addressLine1 = addressLine1
         place.addressLine2 = addressLine2
+        place.sublocality = sublocality
         place.apartmentNumber = apartmentNumber
         place.city = city
         place.country = country
         place.postcode = postcode
         place.startDate = startDate
         place.endDate = endDate
-        place.sublocality = sublocality
         place.isCurrent = isCurrent
         place.buildingType = buildingType
 

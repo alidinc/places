@@ -12,16 +12,13 @@ import SwiftData
 class Address: Identifiable {
 
     var id = UUID()
-    var title: String?
-    var name: String?
     var apartmentNumber: String
     var addressLine1: String
     var addressLine2: String
+    var sublocality: String?
     var city: String
     var postcode: String
-    var country: Country?
-    var sublocality: String?
-    var locality: String?
+    var country: String
     var buildingType: BuildingType
     var startDate: Date?
     var endDate: Date?
@@ -29,29 +26,23 @@ class Address: Identifiable {
 
     init(
         id: UUID = UUID(),
-        title: String? = nil,
-        name: String? = nil,
         apartmentNumber: String,
         addressLine1: String,
         addressLine2: String,
         sublocality: String? = nil,
-        locality: String? = nil,
         city: String,
         postcode: String,
-        country: Country?,
+        country: String,
         buildingType: BuildingType,
         startDate: Date? = nil,
         endDate: Date? = nil,
         isCurrent: Bool
     ) {
         self.id = id
-        self.title = title
-        self.name = name
         self.apartmentNumber = apartmentNumber
         self.addressLine1 = addressLine1
         self.addressLine2 = addressLine2
         self.sublocality = sublocality
-        self.locality = locality
         self.city = city
         self.postcode = postcode
         self.country = country
@@ -83,28 +74,59 @@ extension Address {
             }
         }
         
-        if let locality, !locality.isEmpty {
-            addressLines.append(locality)
-            
-            if let sublocality, !sublocality.isEmpty, locality.lowercased() != sublocality.lowercased() {
-                addressLines.append(sublocality)
-            }
-            
-            if !city.isEmpty, locality.lowercased() != city.lowercased() {
-                addressLines.append(city)
-            }
+        if !city.isEmpty {
+            addressLines.append(city)
         }
 
         if !postcode.isEmpty {
             addressLines.append(postcode)
         }
 
-        if let country {
-            addressLines.append(country.country)
+        if !country.isEmpty {
+            addressLines.append(country)
         }
 
         return addressLines.joined(separator: ", ")
     }
+    
+    var mainAddressDetails: String {
+        var mainAddressDetails = [String]()
+        
+        if !apartmentNumber.isEmpty {
+            mainAddressDetails.append("\(buildingType == .flat ? "Flat " : "")\(apartmentNumber)")
+        }
+        
+        if !addressLine1.isEmpty {
+            mainAddressDetails.append(addressLine1)
+        }
+        
+        if !addressLine2.isEmpty {
+            mainAddressDetails.append(addressLine2)
+        }
+        
+        return mainAddressDetails.joined(separator: ", ")
+    }
+    
+    var localityDetails: String {
+        var localityDetails = [String]()
+        
+        if !city.isEmpty {
+            localityDetails.append(city)
+        }
+        if let sublocality, !sublocality.isEmpty {
+            localityDetails.append(sublocality)
+        }
+        if !postcode.isEmpty {
+            localityDetails.append(postcode)
+        }
+        
+        if !country.isEmpty {
+            localityDetails.append(country)
+        }
+        
+        return localityDetails.joined(separator: ", ")
+    }
+
 
     var durationString: String {
         guard let start = startDate else {

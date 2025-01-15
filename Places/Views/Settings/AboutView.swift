@@ -18,7 +18,7 @@ struct AboutView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("I've designed Forecasts with a focus on minimalism, and functionality, ensuring it meets the needs of everyone.")
+            Text("I've designed Places with a focus on minimalism, and functionality, ensuring it meets the needs of everyone.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -28,7 +28,7 @@ struct AboutView: View {
 
             Marquee(targetVelocity: 50) {
                 CustomSelectionView(assetName: scheme == .dark ? "Icon5" : "Icon",
-                                    title: "Forecasts \(Bundle.main.appVersionLong)",
+                                    title: "Places \(Bundle.main.appVersionLong)",
                                     subtitle: "Built with SwiftUI and ❤️",
                                     config: .init(titleFont: .system(size: 12),
                                                   titleFontWeight: .medium,
@@ -36,13 +36,6 @@ struct AboutView: View {
                                                   subtitleFontWeight: .regular,
                                                   showChevron: false))
                 .onTapGesture { showSafari = true }
-
-                HStack {
-                    Image(systemName: "apple.logo")
-                    Text("Weather")
-                }
-                .padding(.horizontal)
-                .onTapGesture { showWeatherData = true }
             }
             .padding(.bottom, 40)
         }
@@ -50,7 +43,6 @@ struct AboutView: View {
         .navigationTitle("About")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showSafari, content: { SFSafariView(url: URL(string: Constants.URLs.SwiftUI)!).ignoresSafeArea()  })
-        .sheet(isPresented: $showWeatherData, content: { SFSafariView(url: URL(string: Constants.URLs.WeatherKit)!).ignoresSafeArea()  })
     }
 
     @ViewBuilder

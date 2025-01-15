@@ -7,40 +7,40 @@
 
 import SwiftUI
 import UIKit
+import MapKit
 
 struct AddressRow: View {
-
+    
     var place: Address
-
+    
     @AppStorage("tint") private var tint: Tint = .blue
     @Environment(\.modelContext) private var modelContext
     @State private var showingCopyAlert = false
-
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            addressButton
+        VStack(alignment: .leading) {
+            AddressLineView
             durationInfo
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.clear)
-        .alert("Copied", isPresented: $showingCopyAlert) {
+        .alert("Address copied to clipboard", isPresented: $showingCopyAlert) {
             Button("OK", role: .cancel) { }
-        } message: {
-            Text("Address copied to clipboard")
         }
     }
-
-    private var addressButton: some View {
-        Button {
-            copyToClipboard()
-        } label: {
-            Text(place.fullAddress)
-                .font(.subheadline.weight(.medium))
+    
+    private var AddressLineView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(place.mainAddressDetails)
+                .font(.headline.weight(.medium))
+            Text(place.localityDetails)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
         }
     }
-
+    
     private var durationInfo: some View {
         Group {
             HStack {
@@ -48,18 +48,17 @@ struct AddressRow: View {
                 Spacer()
                 
                 HStack {
-                    Text(place.durationString)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
                     Image(systemName: place.buildingType.iconName)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Text(place.durationString)
                 }
+                .font(.caption)
+                .foregroundColor(.secondary)
+                
+                ActionsButton(address: place, showingCopyAlert: $showingCopyAlert)
             }
         }
     }
-
+    
     private var dateRangeText: some View {
         Group {
             if let startDate = place.startDate {
@@ -73,11 +72,5 @@ struct AddressRow: View {
             }
         }
         .font(.caption.weight(.medium))
-    }
-
-    private func copyToClipboard() {
-        UIPasteboard.general.string = place.fullAddress
-        showingCopyAlert = true
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }

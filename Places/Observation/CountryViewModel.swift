@@ -11,17 +11,12 @@ import SwiftUI
 @Observable
 class CountryViewModel {
 
-    var countries: [Country] = []
     var countryFlags: [FlagData] = []
-
     var isLoading = false
     var errorMessage: String?
 
     init() {
         Task {
-            await loadData(resource: "Countries", decodingType: CountryResponse.self) { [weak self] response in
-                self?.countries = response.data
-            }
             await loadData(resource: "CountryFlags", decodingType: CountryFlag.self) { [weak self] response in
                 self?.countryFlags = response.data ?? []
             }

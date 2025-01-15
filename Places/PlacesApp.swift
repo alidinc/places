@@ -10,15 +10,13 @@ import SwiftUI
 @main
 struct PlacesApp: App {
 
-    var vm = AddressLookUpViewModel()
     var countriesVm = CountryViewModel()
     var language = LanguageManager()
 
     var body: some Scene {
         WindowGroup {
-            ContentView(vm: vm, language: language)
+            ContentView(language: language)
                 .tint(.primary)
-                .environment(vm)
                 .environment(countriesVm)
                 .environment(\.locale, .init(identifier: language.language.key))
                 .modelContainer(for: Address.self)
