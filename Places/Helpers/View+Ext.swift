@@ -18,3 +18,7 @@ extension View {
         self.frame(maxHeight: .infinity, alignment: alignment)
     }
 }
+
+
+extension Material: @retroactive View {}
+

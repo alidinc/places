@@ -6,37 +6,47 @@
 //
 
 import Foundation
+import CoreLocation
+import MapKit
 import SwiftData
+import SwiftUI
 
 @Model
 class Address: Identifiable {
-
-    var id = UUID()
+    
+    var id: String
     var apartmentNumber: String
     var addressLine1: String
     var addressLine2: String
     var sublocality: String?
     var city: String
     var postcode: String
-    var country: String
+    var country: FlagData
     var buildingType: BuildingType
     var startDate: Date?
     var endDate: Date?
-    var isCurrent: Bool
-
+    var hasSeenChecklist: Bool = false
+    var addressOwner: AddressOwner
+    var ownerName: String
+    var relationship: String? = nil
+    
+    @Relationship(deleteRule: .cascade) var checklistItems: [ChecklistItem] = []
+    @Relationship(deleteRule: .cascade) var documents: [DocumentItem] = []
+    
     init(
-        id: UUID = UUID(),
+        id: String = UUID().uuidString,
         apartmentNumber: String,
         addressLine1: String,
         addressLine2: String,
         sublocality: String? = nil,
         city: String,
         postcode: String,
-        country: String,
+        country: FlagData,
         buildingType: BuildingType,
         startDate: Date? = nil,
         endDate: Date? = nil,
-        isCurrent: Bool
+        addressOwner: AddressOwner = .mine,
+        ownerName: String
     ) {
         self.id = id
         self.apartmentNumber = apartmentNumber
@@ -49,12 +59,134 @@ class Address: Identifiable {
         self.buildingType = buildingType
         self.startDate = startDate
         self.endDate = endDate
-        self.isCurrent = isCurrent
+        self.addressOwner = addressOwner
+        self.ownerName = ownerName
     }
 }
 
-extension Address {
+@Model
+class DocumentItem: Identifiable {
+    var id = UUID()
+    var name: String
+    var data: Data
+    var type: DocumentType
+    var uploadDate: Date
+    
+    init(id: UUID = UUID(), name: String, data: Data, type: DocumentType, uploadDate: Date = Date()) {
+        self.id = id
+        self.name = name
+        self.data = data
+        self.type = type
+        self.uploadDate = uploadDate
+    }
+}
 
+enum DocumentType: String, Codable, CaseIterable {
+    case rentalAgreement = "Rental Agreement"
+    case utilityBill = "Utility Bill"
+    case other = "Other"
+}
+
+enum AddressOwner: String, Codable, CaseIterable {
+    
+    case mine = "Personal"
+    case friend = "Others"
+    
+    var icon: String {
+        switch self {
+        case .mine:
+            return "house.fill"
+        case .friend:
+            return "person.2.fill"
+        }
+    }
+}
+
+
+extension Address {
+    
+    var annotation: PointAnnotation {
+        let annotation = MKPointAnnotation()
+        let geocoder = CLGeocoder()
+        var coordinate = CLLocationCoordinate2D()
+        
+        let semaphore = DispatchSemaphore(value: 0)
+        geocoder.geocodeAddressString(fullAddress) { placemarks, error in
+            if let location = placemarks?.first?.location {
+                coordinate = location.coordinate
+            }
+            semaphore.signal()
+        }
+        _ = semaphore.wait(timeout: .now() + 2)
+        
+        annotation.coordinate = coordinate
+        annotation.title = self.addressLine1
+        annotation.subtitle = self.city
+        
+        return PointAnnotation(
+            id: self.id,
+            latitude: annotation.coordinate.latitude,
+            longitude: annotation.coordinate.longitude,
+            name: self.addressLine1,
+            addressOwner: self.addressOwner
+        )
+    }
+    
+    func createAnnotation(completion: @escaping (PointAnnotation?) -> Void) {
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(fullAddress) {
+            placemarks,
+            error in
+            if let error {
+                print("Geocoding error: \(error.localizedDescription)")
+                completion(nil)
+            } else if let location = placemarks?.first?.location {
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = location.coordinate
+                annotation.title = self.addressLine1
+                annotation.subtitle = self.city
+                completion(
+                    PointAnnotation(
+                        id: self.id,
+                        latitude: annotation.coordinate.latitude,
+                        longitude: annotation.coordinate.longitude,
+                        name: self.addressLine1,
+                        addressOwner: self.addressOwner
+                    )
+                )
+            } else {
+                completion(nil)
+            }
+        }
+    }
+    
+    var durationInDays: Int {
+        guard let start = startDate else { return 0 }
+        let end = endDate ?? Date()
+        return Calendar.current.dateComponents([.day], from: start, to: end).day ?? 0
+    }
+    
+    var formattedDuration: String {
+        let years = durationInDays / 365
+        let months = (durationInDays % 365) / 30
+        
+        if years > 0 {
+            return "\(years) year\(years > 1 ? "s" : "")\(months > 0 ? " \(months) month\(months > 1 ? "s" : "")" : "")"
+        } else if months > 0 {
+            return "\(months) month\(months > 1 ? "s" : "")"
+        } else {
+            return "\(durationInDays) day\(durationInDays != 1 ? "s" : "")"
+        }
+    }
+    
+    var encodedAddress: String {
+        let address = [addressLine1, addressLine2, city, postcode, country.name]
+            .filter { !$0.isEmpty }
+            .joined(separator: ", ")
+        
+        return address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    }
+    
     var fullAddress: String {
         var addressLines = [String]()
         
@@ -77,15 +209,15 @@ extension Address {
         if !city.isEmpty {
             addressLines.append(city)
         }
-
+        
         if !postcode.isEmpty {
             addressLines.append(postcode)
         }
-
-        if !country.isEmpty {
-            addressLines.append(country)
+        
+        if  !country.name.isEmpty {
+            addressLines.append(country.name)
         }
-
+        
         return addressLines.joined(separator: ", ")
     }
     
@@ -120,31 +252,31 @@ extension Address {
             localityDetails.append(postcode)
         }
         
-        if !country.isEmpty {
-            localityDetails.append(country)
+        if !country.name.isEmpty {
+            localityDetails.append(country.name)
         }
         
         return localityDetails.joined(separator: ", ")
     }
-
-
+    
+    
     var durationString: String {
         guard let start = startDate else {
             return ""
         }
-
+        
         // If endDate is nil, use the current date for calculation
         let end = endDate ?? Date()
-
+        
         let components = Calendar.current.dateComponents([.year, .month, .day], from: start, to: end)
-
+        
         // Format the duration string (this is just an example)
         let years = components.year ?? 0
         let months = components.month ?? 0
         let days = components.day ?? 0
-
+        
         var parts: [String] = []
-
+        
         if years > 0 {
             parts.append("\(years) year\(years > 1 ? "s" : "")")
         }
@@ -154,7 +286,7 @@ extension Address {
         if days > 0 && years == 0 { // Only show days if less than a month/year
             parts.append("\(days) day\(days > 1 ? "s" : "")")
         }
-
+        
         if parts.isEmpty {
             return "Less than a day"
         } else {

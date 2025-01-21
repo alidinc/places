@@ -59,7 +59,7 @@ struct CustomAlertView: View {
 
     var body: some View {
         VStack(alignment: .center) {
-            VStack {
+            VStack(spacing: 8) {
                 Text(title)
                     .font(.title3)
                     .bold()

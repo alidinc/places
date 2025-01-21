@@ -12,24 +12,33 @@ struct TintSelectionView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        Form {
-            Picker("App Tint Color", selection: $selectedTint) {
-                ForEach(Tint.allCases) { tintOption in
-                    HStack {
-                        Circle()
-                            .fill(tintOption.color)
-                            .frame(width: 18, height: 18)
+        NavigationStack {
+            Form {
+                Picker("App Tint Color", selection: $selectedTint) {
+                    ForEach(Tint.allCases) { tintOption in
+                        HStack {
+                            Circle()
+                                .fill(tintOption.color)
+                                .frame(width: 18, height: 18)
 
-                        Text(tintOption.title)
+                            Text(tintOption.title)
+                        }
+                        .tag(tintOption)
                     }
-                    .tag(tintOption)
+                }
+                .listRowBackground(Color.gray.opacity(0.25))
+                .listRowSeparatorTint(.gray.opacity(0.45))
+                .pickerStyle(.inline)
+                .onChange(of: selectedTint) { _,_ in
+                    dismiss()
                 }
             }
-            .pickerStyle(.inline)
-            .onChange(of: selectedTint) { _,_ in
-                dismiss()
-            }
+            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
         }
-        .navigationTitle("App Tint Color")
+        .presentationDetents([.medium, .fraction(0.95)])
+        .presentationBackground(.ultraThinMaterial)
+        .presentationCornerRadius(20)
     }
 }

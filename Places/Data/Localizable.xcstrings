@@ -1,0 +1,912 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " "
+          }
+        }
+      }
+    },
+    "%@ / %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ %@"
+          }
+        }
+      }
+    },
+    "%@ • %@" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • %@"
+          }
+        }
+      }
+    },
+    "%@ • Present" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • Mevcut"
+          }
+        }
+      }
+    },
+    "%@ Addresses" : {
+
+    },
+    "%@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@%2$@"
+          }
+        }
+      }
+    },
+    "About" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hakkında"
+          }
+        }
+      }
+    },
+    "Add" : {
+
+    },
+    "Add a new address" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni bir adres ekle"
+          }
+        }
+      }
+    },
+    "Add A New Address" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni bir adres ekle"
+          }
+        }
+      }
+    },
+    "Add new item" : {
+
+    },
+    "Add other addresses to get started." : {
+
+    },
+    "Add your own addresses to get started." : {
+
+    },
+    "Address Book is Empty" : {
+
+    },
+    "Address copied to clipboard" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adres panoya kopyalandı."
+          }
+        }
+      }
+    },
+    "Address Details" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adres Detayları"
+          }
+        }
+      }
+    },
+    "Address Line 1" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adres Satırı 1"
+          }
+        }
+      }
+    },
+    "Address Line 2" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adres Satırı 2"
+          }
+        }
+      }
+    },
+    "Ali Dinç" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ali Dinç"
+          }
+        }
+      }
+    },
+    "Apartment/House Number" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daire/Ev Numarası"
+          }
+        }
+      }
+    },
+    "App Icon" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama Simgesi"
+          }
+        }
+      }
+    },
+    "App Tint Color" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulama Ton Rengi"
+          }
+        }
+      }
+    },
+    "Apt/House #" : {
+
+    },
+    "Are you sure to delete this address?" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu adresi silmek istediğinize emin misiniz?"
+          }
+        }
+      }
+    },
+    "Black" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siyah"
+          }
+        }
+      }
+    },
+    "Blue" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mavi"
+          }
+        }
+      }
+    },
+    "Brown" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kahverengi"
+          }
+        }
+      }
+    },
+    "Built with SwiftUI and ❤️" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SwiftUI ve ❤️ ile inşa edildi."
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İptal"
+          }
+        }
+      }
+    },
+    "Checklist" : {
+
+    },
+    "Checklist for %@" : {
+
+    },
+    "Choose a contact name" : {
+
+    },
+    "Choose from your contacts list" : {
+
+    },
+    "City" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şehir"
+          }
+        }
+      }
+    },
+    "completed" : {
+
+    },
+    "Copy to Clipboard" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panoya Kopyala"
+          }
+        }
+      }
+    },
+    "Country" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ülke"
+          }
+        }
+      }
+    },
+    "Cyan" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camgöbeği"
+          }
+        }
+      }
+    },
+    "Dark Blue" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koyu Mavi"
+          }
+        }
+      }
+    },
+    "Dark Green" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koyu Yeşil"
+          }
+        }
+      }
+    },
+    "Dark Indigo" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koyu Çivit Mavisi"
+          }
+        }
+      }
+    },
+    "Dark Red" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koyu Kırmızı"
+          }
+        }
+      }
+    },
+    "Default email app" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Varsayılan e-posta uygulaması"
+          }
+        }
+      }
+    },
+    "Delete" : {
+
+    },
+    "Developer" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geliştirici"
+          }
+        }
+      }
+    },
+    "Documents" : {
+
+    },
+    "Don't have any addresses yet." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Henüz adresiniz yok."
+          }
+        }
+      }
+    },
+    "Edit" : {
+
+    },
+    "Edit address" : {
+
+    },
+    "Edit Address" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adresi Düzenle"
+          }
+        }
+      }
+    },
+    "End Date" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitiş Tarihi"
+          }
+        }
+      }
+    },
+    "English" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İngilizce"
+          }
+        }
+      }
+    },
+    "Feedback" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri Bildirim"
+          }
+        }
+      }
+    },
+    "Fetching contacts, please wait." : {
+
+    },
+    "Go to AppStore" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AppStore’a Git"
+          }
+        }
+      }
+    },
+    "Green" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeşil"
+          }
+        }
+      }
+    },
+    "I've designed Places with a focus on minimalism, and functionality, ensuring it meets the needs of everyone." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Places’i minimalizm ve işlevselliğe odaklanarak tasarladım, herkesin ihtiyaçlarını karşılayacak şekilde düzenledim."
+          }
+        }
+      }
+    },
+    "Indigo" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çivit Mavisi"
+          }
+        }
+      }
+    },
+    "Invalid Input" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçersiz Değer"
+          }
+        }
+      }
+    },
+    "iOS email app" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iOS e-posta uygulaması"
+          }
+        }
+      }
+    },
+    "Is this your current address?" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu mevcut adresiniz mi?"
+          }
+        }
+      }
+    },
+    "Kindly verify if the information is accurate." : {
+
+    },
+    "Language" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dil"
+          }
+        }
+      }
+    },
+    "Loading contacts..." : {
+
+    },
+    "Loading..." : {
+
+    },
+    "Local Info" : {
+
+    },
+    "Much appreciate your support. Please let me know, if you have any feedback." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desteğiniz için çok teşekkür ederim. Herhangi bir geri bildiriminiz olursa lütfen bana bildirin."
+          }
+        }
+      }
+    },
+    "Name" : {
+
+    },
+    "Navigate" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Navigasyon"
+          }
+        }
+      }
+    },
+    "Number" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numara"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamam"
+          }
+        }
+      }
+    },
+    "Open in Apple Maps" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Maps’te Aç"
+          }
+        }
+      }
+    },
+    "Open in Google Maps" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Maps’te Aç"
+          }
+        }
+      }
+    },
+    "Orange" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turuncu"
+          }
+        }
+      }
+    },
+    "Pink" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pembe"
+          }
+        }
+      }
+    },
+    "Places %@" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Places %@"
+          }
+        }
+      }
+    },
+    "Postal Code" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posta Kodu"
+          }
+        }
+      }
+    },
+    "postcodes.io" : {
+
+    },
+    "Primary" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Birincil"
+          }
+        }
+      }
+    },
+    "Purple" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mor"
+          }
+        }
+      }
+    },
+    "Rate us" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değerlendir"
+          }
+        }
+      }
+    },
+    "Rate Us" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değerlendir"
+          }
+        }
+      }
+    },
+    "Red" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kırmızı"
+          }
+        }
+      }
+    },
+    "Relationship" : {
+
+    },
+    "Resident" : {
+
+    },
+    "Save" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaydet"
+          }
+        }
+      }
+    },
+    "Search addresses" : {
+
+    },
+    "Search countries" : {
+
+    },
+    "Select a country" : {
+
+    },
+    "Select Country" : {
+
+    },
+    "Select Language" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dil Seç"
+          }
+        }
+      }
+    },
+    "Send a Tip" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bahşiş Gönder"
+          }
+        }
+      }
+    },
+    "Send an email" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-posta Gönder"
+          }
+        }
+      }
+    },
+    "Send Feedback" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri Bildirim Gönder"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar"
+          }
+        }
+      }
+    },
+    "Share" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paylaş"
+          }
+        }
+      }
+    },
+    "Share App" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı Paylaş"
+          }
+        }
+      }
+    },
+    "Showing last 3 years" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 3 yılı Göster"
+          }
+        }
+      }
+    },
+    "Showing Recent" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hepsini Göster"
+          }
+        }
+      }
+    },
+    "Start Date" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başlangıç Tarihi"
+          }
+        }
+      }
+    },
+    "State" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eyalet"
+          }
+        }
+      }
+    },
+    "Sublocality" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alt Bölge"
+          }
+        }
+      }
+    },
+    "Thank You 💕" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teşekkürler 💕"
+          }
+        }
+      }
+    },
+    "This data is sourced from " : {
+
+    },
+    "Tips" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destek"
+          }
+        }
+      }
+    },
+    "Turkish" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Türkçe"
+          }
+        }
+      }
+    },
+    "View Checklist" : {
+
+    },
+    "White" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beyaz"
+          }
+        }
+      }
+    },
+    "Who lives here?" : {
+
+    },
+    "Would you like to delete this document?" : {
+
+    },
+    "You currently live in" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mevcut ikamet adresiniz"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

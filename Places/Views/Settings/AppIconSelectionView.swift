@@ -13,34 +13,57 @@ struct AppIconSelectionView: View {
     @Environment(\.colorScheme) var scheme
 
     var body: some View {
-        List {
-            ForEach(AppIcon.allCases) { icon in
-                HStack {
-                    Image(icon.assetName)
-                        .resizable()
-                        .frame(width: 40, height: 40)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    Text(icon.title)
-                    Spacer()
-                    if icon == selectedAppIcon {
-                        Image(systemName: "checkmark")
+        NavigationStack {
+            List {
+                Section("App Icon") {
+                    ForEach(AppIcon.allCases, id: \.id) { icon in
+                        Button {
+                            updateIcon(to: icon)
+                        } label: {
+                            HStack {
+                                Image(icon.assetName)
+                                    .resizable()
+                                    .frame(width: 32, height: 32)
+                                    .clipShape(.rect(cornerRadius: 8))
+                                Text(icon.title)
+                                Spacer()
+                                if icon == selectedAppIcon {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                            .padding(.vertical, 3)
+                        }
+                        .tag(icon.id)
                     }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedAppIcon = icon
-                    updateIcon(to: icon)
+                    .listRowBackground(Color.gray.opacity(0.25))
+                    .listRowSeparatorTint(.gray.opacity(0.45))
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
         }
-        .navigationTitle("App Icon")
+        .presentationDetents([.medium, .fraction(0.95)])
+        .presentationBackground(.ultraThinMaterial)
+        .presentationCornerRadius(20)
     }
 
     func updateIcon(to icon: AppIcon) {
         // Update the app icon
-        UIApplication.shared.setAlternateIconName(icon.iconName) { error in
-            if let error = error {
-                print("Error setting alternate icon: \(error.localizedDescription)")
+        selectedAppIcon = icon
+        
+        Task { @MainActor in
+            guard UIApplication.shared.alternateIconName != icon.iconName else {
+                /// No need to update since we're already using this icon.
+                return
+            }
+
+            do {
+                try await UIApplication.shared.setAlternateIconName(icon.iconName)
+                print("Updating icon to \(String(describing: icon.iconName)) succeeded.")
+            } catch {
+                print("Updating icon to \(String(describing: icon.iconName)) failed.")
+                try await UIApplication.shared.setAlternateIconName(nil)
             }
         }
     }

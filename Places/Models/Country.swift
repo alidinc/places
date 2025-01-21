@@ -34,6 +34,6 @@ struct CountryFlag: Codable {
 }
 
 // MARK: - Datum
-struct FlagData: Codable {
-    let name, iso2, iso3, unicodeFlag: String?
+struct FlagData: Codable, Hashable {
+    let name, iso2, iso3, unicodeFlag: String
 }

@@ -27,20 +27,24 @@ struct AboutView: View {
             Spacer()
 
             Marquee(targetVelocity: 50) {
-                CustomSelectionView(assetName: scheme == .dark ? "Icon5" : "Icon",
-                                    title: "Places \(Bundle.main.appVersionLong)",
-                                    subtitle: "Built with SwiftUI and ❤️",
-                                    config: .init(titleFont: .system(size: 12),
-                                                  titleFontWeight: .medium,
-                                                  subtitleFont: .caption2,
-                                                  subtitleFontWeight: .regular,
-                                                  showChevron: false))
-                .onTapGesture { showSafari = true }
+                Button {
+                    showSafari = true
+                } label: {
+                    CustomSelectionView(assetName: scheme == .dark ? "Icon5" : "Icon",
+                                        title: "Places \(Bundle.main.appVersionLong)",
+                                        subtitle: "Built with SwiftUI and ❤️",
+                                        config: .init(titleFont: .system(size: 12),
+                                                      titleFontWeight: .medium,
+                                                      subtitleFont: .caption2,
+                                                      subtitleFontWeight: .regular,
+                                                      showChevron: false))
+                }
             }
             .padding(.bottom, 40)
         }
         .padding()
         .navigationTitle("About")
+        .toolbarRole(.editor)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showSafari, content: { SFSafariView(url: URL(string: Constants.URLs.SwiftUI)!).ignoresSafeArea()  })
     }
@@ -55,7 +59,6 @@ struct AboutView: View {
                 VStack(alignment: .leading) {
                     Text("Ali Dinç")
                         .font(.headline.bold())
-                        .foregroundColor(.primary)
 
                     Text("Developer")
                         .font(.subheadline)

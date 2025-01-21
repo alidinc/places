@@ -10,10 +10,25 @@ import SwiftUI
 import Observation
 
 let myTipProductIdentifiers = [
-    "com.alidinc.forecasts.tiny",
-    "com.alidinc.forecasts.medium",
-    "com.alidinc.forecasts.large"
+    "com.alidinc.places.tiny",
+    "com.alidinc.places.medium",
+    "com.alidinc.places.large"
 ]
+
+enum TipsError: LocalizedError {
+    case failedVerification
+    case system(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .failedVerification:
+            return "User transaction verification failed"
+        case .system(let error):
+            return error.localizedDescription
+        }
+    }
+}
+
 
 enum TipsAction: Equatable {
     case successful

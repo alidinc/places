@@ -11,66 +11,71 @@ import MapKit
 
 struct AddressRow: View {
     
+    @AppStorage("current") private var currentAddressId = ""
+    @AppStorage("tint") private var tint: Tint = .blue
+    
     var place: Address
     
-    @AppStorage("tint") private var tint: Tint = .blue
-    @Environment(\.modelContext) private var modelContext
-    @State private var showingCopyAlert = false
-    
     var body: some View {
-        VStack(alignment: .leading) {
-            AddressLineView
-            durationInfo
+        VStack(alignment: .leading, spacing: 12) {
+            addressLineView
+            bottomInfo
         }
         .padding(.vertical, 16)
-        .padding(.horizontal, 18)
+        .padding(.leading)
+        .padding(.trailing, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.clear)
-        .alert("Address copied to clipboard", isPresented: $showingCopyAlert) {
-            Button("OK", role: .cancel) { }
-        }
     }
     
-    private var AddressLineView: some View {
+    private var addressLineView: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(place.mainAddressDetails)
-                .font(.headline.weight(.medium))
             Text(place.localityDetails)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
         }
+        .font(.headline.weight(.medium))
     }
     
-    private var durationInfo: some View {
-        Group {
+    @ViewBuilder
+    private var bottomInfo: some View {
+        switch place.addressOwner {
+        case .mine:
             HStack {
-                dateRangeText
+                Group {
+                    if let startDate = place.startDate {
+                        if let startDate = place.startDate, place.id == currentAddressId {
+                            Text("\(startDate.formatted(.dateTime.day().month().year())) • Present")
+                                .foregroundStyle(tint.color)
+                        } else if let endDate = place.endDate {
+                            Text("\(startDate.formatted(.dateTime.day().month().year())) • \(endDate.formatted(.dateTime.day().month().year()))")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .font(.caption.weight(.medium))
+                
                 Spacer()
                 
-                HStack {
-                    Image(systemName: place.buildingType.iconName)
-                    Text(place.durationString)
-                }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                Text(place.durationString)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        case .friend:
+            HStack {
+                Text(place.ownerName)
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(tint.color.opacity(0.5), in: .capsule)
                 
-                ActionsButton(address: place, showingCopyAlert: $showingCopyAlert)
-            }
-        }
-    }
-    
-    private var dateRangeText: some View {
-        Group {
-            if let startDate = place.startDate {
-                if let startDate = place.startDate, place.isCurrent {
-                    Text("\(startDate.formatted(.dateTime.day().month().year())) • Present")
-                        .foregroundStyle(tint.color)
-                } else if let endDate = place.endDate {
-                    Text("\(startDate.formatted(.dateTime.day().month().year())) • \(endDate.formatted(.dateTime.day().month().year()))")
-                        .foregroundStyle(.secondary)
+                if let relationship = place.relationship, !relationship.isEmpty {
+                    Text(relationship)
+                        .font(.subheadline.weight(.medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(tint.color.opacity(0.5), in: .capsule)
                 }
             }
         }
-        .font(.caption.weight(.medium))
     }
 }

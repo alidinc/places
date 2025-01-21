@@ -12,20 +12,21 @@ struct SettingsView: View {
 
     @AppStorage("tint") private var tint: Tint = .blue
     @AppStorage("appIcon") private var selectedAppIcon: AppIcon = .black
-
-    @State var store = TipStore()
     @Bindable var language: LanguageManager
-
+    @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var scheme
     @Environment(\.openURL) var openURL
-
     @State private var showEmailSelection = false
     @State private var showSendEmail = false
     @State private var showRateApp = false
     @State private var showShareSheet = false
+    @State private var showTints = false
+    @State private var showLanguage = false
+    @State private var showIcons = false
     @State private var showTips = false
     @State private var showThanks = false
     @State private var showAlertNoDefaulEmailFound = false
+    @State var store = TipStore()
     @State private var email = SupportEmail(
         toAddress: "alidinc.uk@outlook.com",
         subject: "Support Email",
@@ -33,81 +34,48 @@ struct SettingsView: View {
     )
 
     var body: some View {
-        List {
-            settingsSection
-            feedbackSection
-        }
-        .navigationTitle("Settings")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarRole(.editor)
-        .sensoryFeedback(.selection, trigger: tint)
-        .environment(\.locale, .init(identifier: language.language.key))
-        .onChange(of: store.action) { _, action in
-            if action == .successful {
-                showTips = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    showThanks = true
-                    store.reset()
-                }
+        NavigationStack {
+            List {
+                settingsSection
+                feedbackSection
             }
-        }
-        .customAlert(isPresented: $showThanks, config: .init(
-                          title: Constants.Text.PurchaseTitle,
-                          subtitle: Constants.Text.PurchaseMessage,
-                          primaryActions: [.init(title: "OK", action: { showThanks = false }) ])
-        )
-        .sheet(isPresented: $showShareSheet) {
-            ActivityView(activityItems: [URL(string: Constants.URLs.AppStoreURL)!])
-                .presentationDetents([.medium, .large])
-        }
-        .sheet(isPresented: $showSendEmail, content: {
-            MailView(supportEmail: $email) { result in
-                switch result {
-                case .success:
-                    print("Email sent")
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
+            .padding(.top, -16)
+            .scrollContentBackground(.hidden)
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
+            .navigationBarBackButtonHidden()
+            .navigationBarTitleDisplayMode(.inline)
+            .sensoryFeedback(.selection, trigger: tint)
+            .environment(\.locale, .init(identifier: language.language.key))
+            .sheet(isPresented: $showSendEmail) { mailButton }
+            .sheet(isPresented: $showTints) { TintSelectionView(selectedTint: $tint) }
+            .sheet(isPresented: $showIcons) { AppIconSelectionView(selectedAppIcon: $selectedAppIcon)  }
+            .sheet(isPresented: $showLanguage) { LanguageSelectionView(selectedLanguage: $language.language) }
+            .sheet(isPresented: $showShareSheet) {
+                ActivityView(activityItems: [URL(string: Constants.URLs.AppStoreURL)!])
+                    .presentationDetents([.medium, .large])
             }
-        })
-        .confirmationDialog("Rate us", isPresented: $showRateApp, titleVisibility: .visible, actions: {
-            Button {
-                self.rateApp()
-            } label: {
-                Text("Go to AppStore")
-                    .font(.subheadline)
-            }
-        })
-        .confirmationDialog("Tips", isPresented: $showTips, titleVisibility: .visible, actions: {
-            ForEach(store.items, id: \.self) { item in
-                Button {
-                    Task {
-                        await self.store.purchase(item)
+            .confirmationDialog("Rate us", isPresented: $showRateApp, titleVisibility: .visible, actions: { rateButton })
+            .confirmationDialog("Tips", isPresented: $showTips, titleVisibility: .visible, actions: { tipActions })
+            .confirmationDialog("Send an email", isPresented: $showEmailSelection, titleVisibility: .visible, actions: { emailDialogActions })
+            .customAlert(isPresented: $showThanks, config: .init(
+                              title: Constants.Text.PurchaseTitle,
+                              subtitle: Constants.Text.PurchaseMessage,
+                              primaryActions: [.init(title: "OK", action: { showThanks = false }) ])
+            )
+            .onChange(of: store.action) { _, action in
+                if action == .successful {
+                    showTips = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showThanks = true
+                        store.reset()
                     }
-                } label: {
-                    Text(item.displayPrice)
                 }
             }
-        })
-        .confirmationDialog("Send an email", isPresented: $showEmailSelection, titleVisibility: .visible, actions: {
-            Button {
-                self.email.send(openURL: self.openURL) { didSend in
-                    showAlertNoDefaulEmailFound = !didSend
-                }
-            } label: {
-                Text("Default email app")
-                    .font(.subheadline)
-            }
-
-            if MailView.canSendMail {
-                Button {
-                    self.showSendEmail = true
-                } label: {
-                    Text("iOS email app")
-                        .font(.subheadline)
-                }
-            }
-        })
+        }
+        .presentationBackground(.ultraThinMaterial)
+        .presentationDetents([.medium, .fraction(0.95)])
+        .presentationCornerRadius(20)
+        .interactiveDismissDisabled()
     }
 
 
@@ -115,14 +83,28 @@ struct SettingsView: View {
 
     private var settingsSection: some View {
         Section(header: Text("Settings")) {
-            AppIconSelector
-            TintSelector
-            LocalizationView(settings: language)
+            appIconSelector
+            tintSelector
+            languageSelector
+        }
+        .listRowBackground(Color.gray.opacity(0.25))
+        .listRowSeparatorTint(.gray.opacity(0.45))
+    }
+    
+    private var languageSelector: some View {
+        Button {
+            showLanguage = true
+        } label: {
+            SettingsRowView(icon: "globe", title: "Language") {
+                Text("\(language.language.flag) \(language.language.title)")
+            }
         }
     }
 
-    private var AppIconSelector: some View {
-        NavigationLink(destination: AppIconSelectionView(selectedAppIcon: $selectedAppIcon)) {
+    private var appIconSelector: some View {
+        Button {
+            showIcons = true
+        } label: {
             SettingsRowView(icon: "app", title: "App Icon") {
                 Image(selectedAppIcon.assetName)
                     .resizable()
@@ -132,8 +114,10 @@ struct SettingsView: View {
         }
     }
 
-    private var TintSelector: some View {
-        NavigationLink(destination: TintSelectionView(selectedTint: $tint)) {
+    private var tintSelector: some View {
+        Button {
+            showTints = true
+        } label: {
             SettingsRowView(icon: "paintpalette.fill", title: "App Tint Color") {
                 Circle()
                     .fill(tint.color)
@@ -153,7 +137,7 @@ struct SettingsView: View {
             }
 
             Button(action: {
-                rateApp()
+                showRateApp = true
             }) {
                 SettingsRowView(icon: "star.fill", title: "Rate Us")
             }
@@ -174,13 +158,60 @@ struct SettingsView: View {
                 SettingsRowView(icon: "info.circle", title: "About")
             }
         }
+        .listRowBackground(Color.gray.opacity(0.25))
+        .listRowSeparatorTint(.gray.opacity(0.45))
     }
+    
+    @ViewBuilder
+    private var emailDialogActions: some View {
+        Button {
+            self.email.send(openURL: self.openURL) { didSend in
+                showAlertNoDefaulEmailFound = !didSend
+            }
+        } label: {
+            Text("Default email app")
+        }
 
-    // MARK: - Helper Functions
-
-    private func rateApp() {
-        guard let url = URL(string: "https://apps.apple.com/app/idYOUR_APP_ID?action=write-review") else { return }
-        UIApplication.shared.open(url)
+        if MailView.canSendMail {
+            Button {
+                self.showSendEmail = true
+            } label: {
+                Text("iOS email app")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var tipActions: some View {
+        ForEach(store.items, id: \.self) { item in
+            Button {
+                Task {
+                    await self.store.purchase(item)
+                }
+            } label: {
+                Text(item.displayPrice)
+            }
+        }
+    }
+    
+    private var mailButton: some View {
+        MailView(supportEmail: $email) { result in
+            switch result {
+            case .success:
+                print("Email sent")
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    private var rateButton: some View {
+        Button {
+            guard let url = URL(string: "https://apps.apple.com/app/idYOUR_APP_ID?action=write-review") else { return }
+            UIApplication.shared.open(url)
+        } label: {
+            Text("Go to AppStore")
+        }
     }
 }
 
@@ -194,3 +225,5 @@ struct ActivityView: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
+
+

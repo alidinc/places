@@ -16,8 +16,9 @@ enum Constants {
     }
 
     struct Notifications {
-        static let connectivityChanged = Notification.Name("connectivityChanged")
-        static let widgetDataDidChange = Notification.Name("widgetDataDidChange")
+        static let addressesChanged = Notification.Name("addressesChanged")
+        static let editingAddress = Notification.Name("editingAddress")
+        static let deletedAddress = Notification.Name("deletedAddress")
     }
 
     struct URLs {
