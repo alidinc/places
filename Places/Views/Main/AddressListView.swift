@@ -85,7 +85,7 @@ struct AddressListView: View {
         }
         .interactiveDismissDisabled()
         .presentationDetents([.fraction(0.3), .medium, .fraction(0.95)])
-        .presentationBackground(.regularMaterial)
+        .presentationBackground(.thinMaterial)
         .presentationBackgroundInteraction(.enabled)
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
@@ -147,10 +147,12 @@ struct AddressListView: View {
             HStack {
                 Image(systemName: selectedAddressOwnerType.icon)
                     .font(.subheadline.weight(.bold))
-                Text("\(selectedAddressOwnerType.rawValue) Addresses")
-                    .font(.title3.weight(.semibold))
-                Image(systemName: "chevron.down")
-                    .font(.caption.weight(.bold))
+                HStack(spacing: 2) {
+                    Text("\(selectedAddressOwnerType.rawValue) Addresses")
+                        .font(.title3.weight(.semibold))
+                    Image(systemName: "chevron.down")
+                        .font(.caption.weight(.bold))
+                }
             }
             .foregroundStyle(tint.color)
         }

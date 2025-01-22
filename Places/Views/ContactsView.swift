@@ -90,6 +90,7 @@ struct ContactsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: contactsManager.fetchContacts)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
+            .onAppear { HapticsManager.shared.vibrateForSelection() }
         }
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationBackground(.thinMaterial)

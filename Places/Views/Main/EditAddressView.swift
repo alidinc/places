@@ -48,6 +48,7 @@ struct EditAddressView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onDisappear { NotificationCenter.default.post(name: Constants.Notifications.editingAddress, object: nil) }
             .onAppear { NotificationCenter.default.post(name: Constants.Notifications.editingAddress, object: place) }
+            .onAppear { HapticsManager.shared.vibrateForSelection() }
             .onAppear { editVM.loadPlaceDetails(from: place) }
             .quickLookPreview($editVM.previewURL)
             .sheet(isPresented: $editVM.showCountries) { CountrySelectionView(countryData: $editVM.countryData) }
@@ -74,7 +75,6 @@ struct EditAddressView: View {
                     }
                 )
             )
-
         }
         .interactiveDismissDisabled()
         .presentationDetents([.medium, .fraction(0.99)])
@@ -109,7 +109,7 @@ struct EditAddressView: View {
     
     @ViewBuilder
     private var ownerTypeView: some View {
-        if place.residentType == .friend {
+        if editVM.addressOwner == .friend {
             OwnerDetailsView(
                 ownerName: $editVM.ownerName,
                 relationship: $editVM.relationship,

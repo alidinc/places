@@ -48,6 +48,7 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .sensoryFeedback(.selection, trigger: tint)
             .environment(\.locale, .init(identifier: language.language.key))
+            .onAppear { HapticsManager.shared.vibrateForSelection() }
             .sheet(isPresented: $showSendEmail) { mailButton }
             .sheet(isPresented: $showTints) { TintSelectionView(selectedTint: $tint) }
             .sheet(isPresented: $showIcons) { AppIconSelectionView(selectedAppIcon: $selectedAppIcon)  }

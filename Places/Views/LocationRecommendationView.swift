@@ -3,6 +3,7 @@ import CoreLocation
 
 struct LocationRecommendationView: View {
     
+    @AppStorage("tint") private var tint: Tint = .blue
     @Environment(LocationsManager.self) private var locationsManager
     @Environment(CountryViewModel.self) var viewModel
     
@@ -20,11 +21,28 @@ struct LocationRecommendationView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else if let place = recommendedAddress {
-                        Text(place.thoroughfare ?? "")
-                            .font(.subheadline)
-                        Text("\(place.locality ?? ""), \(place.postalCode ?? "")")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        HStack {
+                            Image(systemName: "location.fill")
+                                .foregroundStyle(tint.color)
+                                .font(.headline)
+                            
+                            VStack(alignment: .leading) {
+                                if let thoroughfare = place.thoroughfare {
+                                    Text(thoroughfare)
+                                        .font(.subheadline)
+                                } else if let subthoroughfare = place.subThoroughfare {
+                                    Text(subthoroughfare)
+                                        .font(.subheadline)
+                                } else if let sublocality = place.subLocality {
+                                    Text(sublocality)
+                                        .font(.subheadline)
+                                }
+                               
+                                Text("\(place.locality ?? ""), \(place.postalCode ?? "")")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     } else {
                         Text("Use your current location")
                             .font(.caption)
@@ -36,8 +54,12 @@ struct LocationRecommendationView: View {
                 Spacer()
                 
                 Button {
+                    HapticsManager.shared.vibrateForSelection()
+                    
                     if let place = recommendedAddress {
-                        onAddressSelected(place)
+                        withAnimation {
+                            onAddressSelected(place)
+                        }
                     } else {
                         fetchCurrentLocation()
                     }
@@ -50,7 +72,8 @@ struct LocationRecommendationView: View {
         } header: {
             Text("Current Location")
         } footer: {
-            Text("Tap the plus button to automatically fill in your current address.")
+            Text("Tap the plus button to use this location for your new address details below.")
+                .foregroundStyle(.secondary)
         }
         .listRowBackground(StyleManager.shared.listRowBackground)
         .task {

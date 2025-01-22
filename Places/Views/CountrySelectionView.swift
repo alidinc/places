@@ -54,6 +54,7 @@ struct CountrySelectionView: View {
             .navigationBarBackButtonHidden()
             .toolbarRole(.editor)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
+            .onAppear { HapticsManager.shared.vibrateForSelection() }
         }
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationBackground(.thinMaterial)

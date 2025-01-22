@@ -29,6 +29,7 @@ struct ChecklistView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
+            .onAppear { HapticsManager.shared.vibrateForSelection() }
         }
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationCornerRadius(20)

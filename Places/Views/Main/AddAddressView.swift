@@ -30,7 +30,7 @@ struct AddAddressView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            VStack {
                 addressOwnerPicker
                 List {
                     if addressFields.addressLine1.isEmpty {
@@ -52,6 +52,7 @@ struct AddAddressView: View {
                     }
                     
                     DocumentsSectionView(documents: $addressFields.documents, previewURL: $previewURL)
+                    Spacer(minLength: 50).listRowBackground(Color.clear)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -83,6 +84,7 @@ struct AddAddressView: View {
                     }
                 }
             }
+            .onAppear { HapticsManager.shared.vibrateForSelection() }
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Invalid Input"),
                       message: Text(alertMessage),
@@ -164,7 +166,16 @@ struct AddAddressView: View {
     }
     
     private func useRecommendedAddress(_ place: CLPlacemark) {
-        addressFields.addressLine1 = place.thoroughfare ?? ""
+        var line1 = ""
+        if let thoroughfare = place.thoroughfare {
+            line1 = thoroughfare
+        } else if let subthoroughfare = place.subThoroughfare {
+            line1 = subthoroughfare
+        } else if let sublocality = place.subLocality {
+            line1 = sublocality
+        }
+       
+        addressFields.addressLine1 = line1
         addressFields.addressLine2 = place.subThoroughfare ?? ""
         addressFields.city = place.locality ?? ""
         addressFields.postalCode = place.postalCode ?? ""
