@@ -29,11 +29,30 @@ struct AddressRow: View {
     }
     
     private var addressLineView: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(place.mainAddressDetails)
-            Text(place.localityDetails)
+        HStack {
+            if place.residentType == .friend {
+                if let residentProperty = place.residentProperty {
+                    if let imageData = residentProperty.image, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .foregroundStyle(.gray)
+                    }
+                }
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(place.mainAddressDetails)
+                Text(place.localityDetails)
+            }
+            .font(.headline.weight(.medium))
         }
-        .font(.headline.weight(.medium))
     }
     
     @ViewBuilder

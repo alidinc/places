@@ -54,6 +54,16 @@
     "%@ Addresses" : {
 
     },
+    "%@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
     "%@%@" : {
       "localizations" : {
         "en" : {
@@ -262,6 +272,9 @@
     "Continue" : {
 
     },
+    "Current Location" : {
+
+    },
     "Cyan" : {
       "localizations" : {
         "tr" : {
@@ -374,6 +387,9 @@
       }
     },
     "Fetching contacts, please wait." : {
+
+    },
+    "Finding your location..." : {
 
     },
     "Get Started" : {
@@ -710,6 +726,9 @@
     "Show Onboarding" : {
 
     },
+    "Tap the plus button to automatically fill in your current address." : {
+
+    },
     "Thank You 💕" : {
       "localizations" : {
         "tr" : {
@@ -742,6 +761,9 @@
           }
         }
       }
+    },
+    "Use your current location" : {
+
     },
     "View Checklist" : {
 

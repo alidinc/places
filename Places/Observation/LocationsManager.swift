@@ -66,4 +66,16 @@ class LocationsManager: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location update failed: \(error.localizedDescription)")
     }
+    
+    func getCurrentLocation() async -> CLLocation? {
+        guard isAuthorized else { return nil }
+        
+        return await withCheckedContinuation { continuation in
+            guard let location = manager.location else {
+                continuation.resume(returning: nil)
+                return
+            }
+            continuation.resume(returning: location)
+        }
+    }
 }

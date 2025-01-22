@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct OwnerDetailsView: View {
     
@@ -13,25 +14,32 @@ struct OwnerDetailsView: View {
     @Binding var ownerName: String
     @Binding var relationship: String
     @Binding var showContactsList: Bool
+    @Binding var showImagePicker: Bool
     @Binding var image: UIImage?
     
     var body: some View {
         Section("Resident") {
             VStack(alignment: .leading) {
                 HStack {
-                    if let image {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 40)
-                            .foregroundStyle(.gray)
+                    Button {
+                        showImagePicker = true
+                    } label: {
+                        if let image {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 40, height: 40)
+                                .foregroundStyle(.gray)
+                        }
                     }
+                    .buttonStyle(.plain)
+                    .contentShape(Rectangle())
                     
                     TextField("Name", text: $ownerName)
                     
@@ -72,4 +80,3 @@ struct OwnerDetailsView: View {
         .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
     }
 }
-

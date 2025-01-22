@@ -69,7 +69,9 @@ class EditAddressViewModel {
         if let residentProperty = place.residentProperty {
             ownerName = residentProperty.name
             relationship = residentProperty.relationship ?? ""
-            image = UIImage(data: residentProperty.image)
+            if let imageData = residentProperty.image {
+                image = UIImage(data: imageData)
+            }
         }
         
         if place.country.name == "United Kingdom" {
@@ -96,19 +98,11 @@ class EditAddressViewModel {
         
         // Update or create ResidentProperty
         if addressOwner == .friend {
-            if let imageData = image?.jpegData(compressionQuality: 0.8) {
-                if let existingProperty = place.residentProperty {
-                    existingProperty.name = ownerName
-                    existingProperty.relationship = relationship
-                    existingProperty.image = imageData
-                } else {
-                    place.residentProperty = ResidentProperty(
-                        name: ownerName,
-                        relationship: relationship,
-                        image: imageData
-                    )
-                }
-            }
+            place.residentProperty = ResidentProperty(
+                name: ownerName,
+                relationship: relationship,
+                image: image?.jpegData(compressionQuality: 0.8)
+            )
         } else {
             place.residentProperty = nil
         }

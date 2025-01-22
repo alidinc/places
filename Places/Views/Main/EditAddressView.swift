@@ -5,6 +5,7 @@
 //  Created by alidinc on 11/12/2024.
 //
 
+import PhotosUI
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
@@ -21,6 +22,7 @@ struct EditAddressView: View {
     @Environment(CountryViewModel.self) var viewModel
     
     @State private var editVM: EditAddressViewModel
+    @State private var showImagePicker = false
     
     init(place: Address) {
         self.place = place
@@ -53,7 +55,9 @@ struct EditAddressView: View {
             .sheet(isPresented: $editVM.showContactsList) {
                 ContactsView {
                     editVM.ownerName = $0.name
-                    editVM.image = $0.image
+                    if editVM.image == nil {
+                        editVM.image = $0.image
+                    }
                 }
             }
             .toolbar {
@@ -61,6 +65,16 @@ struct EditAddressView: View {
                 ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .principal) { Text("Edit address").font(.headline.weight(.semibold)) }
             }
+            .photosPicker(
+                isPresented: $showImagePicker,
+                selection: .init(
+                    get: { nil },
+                    set: { newValue in
+                        handleImageSelection(newValue)
+                    }
+                )
+            )
+
         }
         .interactiveDismissDisabled()
         .presentationDetents([.medium, .fraction(0.99)])
@@ -100,6 +114,7 @@ struct EditAddressView: View {
                 ownerName: $editVM.ownerName,
                 relationship: $editVM.relationship,
                 showContactsList: $editVM.showContactsList,
+                showImagePicker: $showImagePicker,
                 image: $editVM.image
             )
         }
@@ -155,5 +170,22 @@ struct EditAddressView: View {
         }
         .hSpacing(.leading)
         .padding(.vertical, 4)
+    }
+    
+    private func handleImageSelection(_ selection: PhotosPickerItem?) {
+        guard let selection = selection else { return }
+        
+        Task {
+            do {
+                guard let data = try await selection.loadTransferable(type: Data.self) else { return }
+                if let newImage = UIImage(data: data) {
+                    await MainActor.run {
+                        editVM.image = newImage
+                    }
+                }
+            } catch {
+                print("Failed to load image: \(error)")
+            }
+        }
     }
 }

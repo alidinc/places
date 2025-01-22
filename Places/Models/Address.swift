@@ -71,9 +71,9 @@ class ResidentProperty: Identifiable {
     var id = UUID()
     var name: String
     var relationship: String?
-    var image: Data
+    var image: Data?
     
-    init(id: UUID = UUID(), name: String, relationship: String? = nil, image: Data) {
+    init(id: UUID = UUID(), name: String, relationship: String? = nil, image: Data? = nil) {
         self.id = id
         self.name = name
         self.relationship = relationship
