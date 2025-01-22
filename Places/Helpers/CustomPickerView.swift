@@ -34,7 +34,10 @@ struct CustomPickerView<T: Hashable>: View {
         }
         .padding(.horizontal, 2)
         .padding(.vertical, 2)
-        .background(StyleManager.shared.listRowBackground, in: .rect(cornerRadius: 8))
+        .background {
+            StyleManager.shared.listRowBackground
+                .clipShape(.rect(cornerRadius: 8))
+        }
         .hSpacing(.center)
     }
 }
