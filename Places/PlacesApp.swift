@@ -9,37 +9,43 @@ import SwiftUI
 
 @main
 struct PlacesApp: App {
-
+    
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
+    
     var countriesVm = CountryViewModel()
     var language = LanguageManager()
     var contacts = ContactsManager()
     @State var hudState = HUDState()
     var locationsManager = LocationsManager()
     
-    init() {
-        locationsManager.requestAuthorisation()
-    }
-
     var body: some Scene {
         WindowGroup {
-            ContentView(language: language)
-                .tint(.primary)
-                .environment(countriesVm)
-                .environment(contacts)
-                .environment(language)
-                .environment(locationsManager)
-                .environment(hudState)
-                .fontDesign(.rounded)
-                .environment(\.locale, .init(identifier: language.language.key))
-                .hud(isPresented: $hudState.isPresented) {
-                    HStack {
-                        Image(systemName: hudState.systemImage)
-                        Text(hudState.title)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .fontDesign(.rounded)
+            Group {
+                if hasCompletedOnboarding {
+                    ContentView(language: language)
+                        .tint(.primary)
+                        .environment(countriesVm)
+                        .environment(contacts)
+                        .environment(language)
+                        .environment(hudState)
+                        .fontDesign(.rounded)
+                        .environment(\.locale, .init(identifier: language.language.key))
+                        .hud(isPresented: $hudState.isPresented) {
+                            HStack {
+                                Image(systemName: hudState.systemImage)
+                                Text(hudState.title)
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .fontDesign(.rounded)
+                        }
+                        .modelContainer(for: [Address.self, ChecklistItem.self])
+                } else {
+                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                        .transition(.move(edge: .trailing))
                 }
-                .modelContainer(for: [Address.self, ChecklistItem.self])
+            }
+            .environment(locationsManager)
         }
     }
 }

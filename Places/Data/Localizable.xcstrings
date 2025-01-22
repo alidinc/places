@@ -87,18 +87,13 @@
         }
       }
     },
-    "Add A New Address" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yeni bir adres ekle"
-          }
-        }
-      }
+    "Add a new note" : {
+
     },
     "Add new item" : {
+
+    },
+    "Add Note" : {
 
     },
     "Add other addresses to get started." : {
@@ -109,17 +104,6 @@
     },
     "Address Book is Empty" : {
 
-    },
-    "Address copied to clipboard" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adres panoya kopyalandı."
-          }
-        }
-      }
     },
     "Address Details" : {
       "localizations" : {
@@ -161,17 +145,6 @@
         }
       }
     },
-    "Apartment/House Number" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daire/Ev Numarası"
-          }
-        }
-      }
-    },
     "App Icon" : {
       "localizations" : {
         "tr" : {
@@ -204,6 +177,9 @@
           }
         }
       }
+    },
+    "Are you sure you want to delete this note?" : {
+
     },
     "Black" : {
       "localizations" : {
@@ -264,6 +240,12 @@
     "Choose a contact name" : {
 
     },
+    "Choose a Tint Colour" : {
+
+    },
+    "Choose an App Icon" : {
+
+    },
     "Choose from your contacts list" : {
 
     },
@@ -277,30 +259,8 @@
         }
       }
     },
-    "completed" : {
+    "Continue" : {
 
-    },
-    "Copy to Clipboard" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Panoya Kopyala"
-          }
-        }
-      }
-    },
-    "Country" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ülke"
-          }
-        }
-      }
     },
     "Cyan" : {
       "localizations" : {
@@ -365,6 +325,9 @@
     "Delete" : {
 
     },
+    "Delete Note" : {
+
+    },
     "Developer" : {
       "localizations" : {
         "tr" : {
@@ -378,16 +341,8 @@
     "Documents" : {
 
     },
-    "Don't have any addresses yet." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Henüz adresiniz yok."
-          }
-        }
-      }
+    "Done" : {
+
     },
     "Edit" : {
 
@@ -395,27 +350,8 @@
     "Edit address" : {
 
     },
-    "Edit Address" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adresi Düzenle"
-          }
-        }
-      }
-    },
-    "End Date" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitiş Tarihi"
-          }
-        }
-      }
+    "Enable Location" : {
+
     },
     "English" : {
       "localizations" : {
@@ -440,6 +376,9 @@
     "Fetching contacts, please wait." : {
 
     },
+    "Get Started" : {
+
+    },
     "Go to AppStore" : {
       "localizations" : {
         "tr" : {
@@ -449,6 +388,9 @@
           }
         }
       }
+    },
+    "Go to your notes" : {
+
     },
     "Green" : {
       "localizations" : {
@@ -555,16 +497,8 @@
         }
       }
     },
-    "Number" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Numara"
-          }
-        }
-      }
+    "Notes" : {
+
     },
     "OK" : {
       "localizations" : {
@@ -708,25 +642,20 @@
     "Search addresses" : {
 
     },
+    "Search contacts" : {
+
+    },
     "Search countries" : {
 
     },
     "Select a country" : {
 
     },
-    "Select Country" : {
+    "Select a Language" : {
 
     },
-    "Select Language" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dil Seç"
-          }
-        }
-      }
+    "Select Country" : {
+
     },
     "Send a Tip" : {
       "localizations" : {
@@ -758,23 +687,15 @@
         }
       }
     },
+    "Set all as completed" : {
+
+    },
     "Settings" : {
       "localizations" : {
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ayarlar"
-          }
-        }
-      }
-    },
-    "Share" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paylaş"
           }
         }
       }
@@ -789,60 +710,8 @@
         }
       }
     },
-    "Showing last 3 years" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Son 3 yılı Göster"
-          }
-        }
-      }
-    },
-    "Showing Recent" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hepsini Göster"
-          }
-        }
-      }
-    },
-    "Start Date" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Başlangıç Tarihi"
-          }
-        }
-      }
-    },
-    "State" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eyalet"
-          }
-        }
-      }
-    },
-    "Sublocality" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alt Bölge"
-          }
-        }
-      }
+    "Show Onboarding" : {
+
     },
     "Thank You 💕" : {
       "localizations" : {
@@ -880,6 +749,9 @@
     "View Checklist" : {
 
     },
+    "Welcome to Places" : {
+
+    },
     "White" : {
       "localizations" : {
         "tr" : {
@@ -890,22 +762,11 @@
         }
       }
     },
-    "Who lives here?" : {
-
-    },
     "Would you like to delete this document?" : {
 
     },
-    "You currently live in" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mevcut ikamet adresiniz"
-          }
-        }
-      }
+    "Your personal address book for keeping track of all your places" : {
+
     }
   },
   "version" : "1.0"

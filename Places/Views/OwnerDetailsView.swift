@@ -13,19 +13,29 @@ struct OwnerDetailsView: View {
     @Binding var ownerName: String
     @Binding var relationship: String
     @Binding var showContactsList: Bool
+    @Binding var image: UIImage?
     
     var body: some View {
         Section("Resident") {
             VStack(alignment: .leading) {
                 HStack {
-                    Text("Who lives here?")
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.leading)
-                    
-                    Spacer()
+                    if let image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .foregroundStyle(.gray)
+                    }
                     
                     TextField("Name", text: $ownerName)
-                        .multilineTextAlignment(.trailing)
+                    
+                    Spacer()
                 }
                 
                 Button {
@@ -58,8 +68,8 @@ struct OwnerDetailsView: View {
                 }
             }
         }
-        .listRowBackground(Color.gray.opacity(0.25))
-        .listRowSeparatorTint(.gray.opacity(0.45))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
     }
 }
 

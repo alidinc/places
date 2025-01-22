@@ -21,22 +21,32 @@ class LocationsManager: NSObject, CLLocationManagerDelegate {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     
+    var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    
+    var hasRequestedAuthorization: Bool {
+        get { UserDefaults.standard.bool(forKey: "hasRequestedLocationAuthorization") }
+        set { UserDefaults.standard.setValue(newValue, forKey: "hasRequestedLocationAuthorization") }
+    }
+    
     override init() {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        requestAuthorisation()
     }
     
     public func requestAuthorisation(always: Bool = false) {
+        if hasRequestedAuthorization { return }
         if always {
             manager.requestAlwaysAuthorization()
         } else {
             manager.requestWhenInUseAuthorization()
         }
+        hasRequestedAuthorization = true
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
+
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
             isAuthorized = true

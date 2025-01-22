@@ -30,10 +30,11 @@ struct LanguageSelectionView: View {
                         }
                         .tag(language.id)
                     }
-                    .listRowBackground(Color.gray.opacity(0.25))
-                    .listRowSeparatorTint(.gray.opacity(0.45))
+                    .listRowBackground(StyleManager.shared.listRowBackground)
+                    .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
                 }
             }
+            .navigationTitle("Select a Language")
             .navigationBarTitleDisplayMode(.inline)
             .onChange(of: selectedLanguage) { _,_ in dismiss() }
             .scrollContentBackground(.hidden)

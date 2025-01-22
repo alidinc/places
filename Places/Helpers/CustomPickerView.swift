@@ -18,20 +18,23 @@ struct CustomPickerView<T: Hashable>: View {
         HStack {
             ForEach(items, id: \.self) { item in
                 Button {
-                    selection = item
+                    withAnimation(.spring(duration: 0.35, bounce: 0.15)) {
+                        selection = item
+                    }
                 } label: {
                     Text(itemTitle(item))
                         .hSpacing(.center)
                         .vSpacing(.center)
-                        .font(.headline)
-                        .fontWeight(selection == item ? .bold : .regular)
+                        .font(.subheadline.weight(.semibold))
                         .background(selection == item ? tint.color.opacity(0.5) : Color.clear, in: .rect(cornerRadius: 8))
                         .foregroundStyle(selection == item ? .white : .secondary)
                         .frame(maxHeight: 30)
                 }
-                .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 2)
+        .padding(.vertical, 2)
+        .background(StyleManager.shared.listRowBackground, in: .rect(cornerRadius: 8))
+        .hSpacing(.center)
     }
 }

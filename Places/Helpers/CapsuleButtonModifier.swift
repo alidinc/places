@@ -16,8 +16,8 @@ struct CapsuleButtonModifier: ViewModifier {
             .font(.subheadline.weight(.medium))
             .foregroundStyle(tint.color)
             .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(.thinMaterial, in: .capsule)
+            .padding(.vertical, 5)
+            .background(.regularMaterial, in: .capsule)
             .padding(4)
     }
 }

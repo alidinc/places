@@ -16,18 +16,15 @@ struct ChecklistSectionView: View {
     var body: some View {
         Section(header: Text("Checklist")) {
             HStack(spacing: 16) {
-                // Progress Chart
                 chartView
-                // Status Text
                 statusView
                 Spacer()
-                // View Button
                 viewButton
             }
             .padding(.vertical, 4)
         }
-        .listRowBackground(Color.gray.opacity(0.25))
-        .listRowSeparatorTint(.gray.opacity(0.45))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
     }
     
     private var chartView: some View {
@@ -63,19 +60,17 @@ struct ChecklistSectionView: View {
     
     private var statusView: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 4) {
-                Text("\(place.checklistItems.filter({ $0.isCompleted }).count, format: .number) / \(place.checklistItems.count, format: .number)")
-                    .contentTransition(.numericText())
-                    .font(.headline.weight(.medium))
-                
-                Text("completed")
-                    .foregroundStyle(.secondary)
-            }
+            Text("\(place.checklistItems.filter({ $0.isCompleted }).count, format: .number) / \(place.checklistItems.count, format: .number)")
+                .contentTransition(.numericText())
+                .font(.headline.weight(.medium))
             
-            let progress = Float(place.checklistItems.filter({ $0.isCompleted }).count) / Float(place.checklistItems.count) * 100
-            Text(String(format: "%.0f%% completed", progress))
+            let completedCount = place.checklistItems.filter({ $0.isCompleted }).count
+            let totalCount = place.checklistItems.count
+            let isAllCompleted = completedCount == totalCount && totalCount != 0
+            
+            Text(isAllCompleted ? "All completed" : (totalCount == 0 ? "No items found" : String(format: "%.0f%% completed", Float(completedCount) / Float(totalCount) * 100)))
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isAllCompleted ? .green : .secondary)
         }
     }
     

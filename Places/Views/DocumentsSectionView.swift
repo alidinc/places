@@ -27,8 +27,8 @@ struct DocumentsSectionView: View {
             addDocumentButton
             documentsListView
         }
-        .listRowSeparatorTint(.gray.opacity(0.45))
-        .listRowBackground(Color.gray.opacity(0.25))
+        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
+        .listRowBackground(StyleManager.shared.listRowBackground)
         .alert("Would you like to delete this document?", isPresented: $showDeleteAlert, actions: {
             HStack {
                 Button("Cancel", role: .cancel) { }

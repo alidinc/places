@@ -26,13 +26,14 @@ struct TintSelectionView: View {
                         .tag(tintOption)
                     }
                 }
-                .listRowBackground(Color.gray.opacity(0.25))
-                .listRowSeparatorTint(.gray.opacity(0.45))
+                .listRowBackground(StyleManager.shared.listRowBackground)
+                .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
                 .pickerStyle(.inline)
                 .onChange(of: selectedTint) { _,_ in
                     dismiss()
                 }
             }
+            .navigationTitle("Choose a Tint Colour")
             .navigationBarTitleDisplayMode(.inline)
             .scrollContentBackground(.hidden)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }

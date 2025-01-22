@@ -65,8 +65,8 @@ struct AddressCardView: View {
             }
             .padding(.vertical, 8)
         }
-        .listRowBackground(Color.gray.opacity(0.25))
-        .listRowSeparatorTint(.gray.opacity(0.45))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
     }
 }
 

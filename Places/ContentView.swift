@@ -109,48 +109,51 @@ extension ContentView {
         }
     }
     
-    @MainActor
     private func positionAnnotations() {
-        switch savedAddresses.count {
-        case 0:
-            positionMapToUsersLocation()
-        case 1:
-            if let firstAddress = savedAddresses.first {
-                handleMap(for: firstAddress)
+        DispatchQueue.main.async {
+            switch self.savedAddresses.count {
+            case 0:
+                self.positionMapToUsersLocation()
+            case 1:
+                if let firstAddress = self.savedAddresses.first {
+                    self.handleMap(for: firstAddress)
+                }
+            default:
+                self.showingMultipleCentered = true
+                self.position = .automatic
             }
-        default:
-            showingMultipleCentered = true
-            position = .automatic
         }
     }
     
+    @MainActor
     private func loadAnnotations() {
-        annotations.removeAll()
-        for address in savedAddresses {
-            address.createAnnotation { annotation in
-                if let annotation {
+        Task {
+            annotations.removeAll()
+            for address in savedAddresses {
+                if let annotation = await address.createAnnotation() {
                     annotations.append(annotation)
                 }
             }
         }
     }
     
+    @MainActor
     private func handleMap(for address: Address) {
-        address.createAnnotation { annotation in
-            if let coordinate = annotation?.coordinate {
-                adjustMapPosition(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            } else {
-                position = .automatic
+        Task {
+            if let annotation = await address.createAnnotation() {
+                adjustMapPosition(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
             }
         }
     }
     
+    @MainActor
     private func positionMapToUsersLocation() {
         if let userLocation = locationsManager.manager.location?.coordinate {
             adjustMapPosition(latitude: userLocation.latitude, longitude: userLocation.longitude)
         }
     }
     
+    @MainActor
     private func adjustMapPosition(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
         let offsetLatitude = latitude - 0.01
         let adjustedCenter = CLLocationCoordinate2D(latitude: offsetLatitude, longitude: longitude)

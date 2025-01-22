@@ -43,20 +43,20 @@ struct CountrySelectionView: View {
                         }
                     }
                 }
-                .listRowBackground(Color.gray.opacity(0.25))
-                .listRowSeparatorTint(.gray.opacity(0.45))
+                .listRowBackground(StyleManager.shared.listRowBackground)
+                .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
             }
+            .padding(.top, -20)
             .scrollContentBackground(.hidden)
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search countries")
             .navigationTitle("Select a country")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
-            .interactiveDismissDisabled()
             .toolbarRole(.editor)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
         }
         .presentationDetents([.medium, .fraction(0.95)])
-        .presentationBackground(.ultraThinMaterial)
+        .presentationBackground(.thinMaterial)
         .presentationCornerRadius(20)
     }
 }

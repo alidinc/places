@@ -35,10 +35,11 @@ struct AppIconSelectionView: View {
                         }
                         .tag(icon.id)
                     }
-                    .listRowBackground(Color.gray.opacity(0.25))
-                    .listRowSeparatorTint(.gray.opacity(0.45))
+                    .listRowBackground(StyleManager.shared.listRowBackground)
+                    .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
                 }
             }
+            .navigationTitle("Choose an App Icon")
             .navigationBarTitleDisplayMode(.inline)
             .scrollContentBackground(.hidden)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }

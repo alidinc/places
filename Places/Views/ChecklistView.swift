@@ -28,25 +28,24 @@ struct ChecklistView: View {
             .navigationTitle("Checklist for \(place.addressLine1)")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
-            .interactiveDismissDisabled()
             .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
         }
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationCornerRadius(20)
-        .presentationBackground(.ultraThinMaterial)
+        .presentationBackground(.thinMaterial)
     }
     
     // MARK: - View Components
     private var newItemSection: some View {
         Section {
-            NewItemRow(
-                title: $newChecklistItemTitle,
-                tint: tint,
-                onSubmit: { addNewItem(animate: false) },
-                onAdd: { addNewItem() }
-            )
+            NewItemRow(title: $newChecklistItemTitle) {
+                addNewItem()
+            } onAdd: {
+                addNewItem(animate: false)
+            }
         }
-        .listRowBackground(Color.gray.opacity(0.25))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+        .listRowSpacing(0)
     }
     
     private var itemsSection: some View {
@@ -57,10 +56,35 @@ struct ChecklistView: View {
                 deleteItem(item)
             }
         }
-        .listRowBackground(Color.gray.opacity(0.25))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+    }
+    
+    private var setAllCompletedButton: some View {
+        Section {
+            Button {
+                setAllComplete()
+            } label: {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Set all as completed")
+                }
+                .capsuleButtonStyle()
+            }
+            .hSpacing(.trailing)
+        }
+        .listRowBackground(Color.clear)
+        .listRowSpacing(0)
     }
     
     // MARK: - Methods
+    private func setAllComplete() {
+        place.checklistItems.forEach { item in
+            item.isCompleted = true
+        }
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        try? modelContext.save()
+    }
+    
     private func toggleItem(_ item: ChecklistItem) {
         item.isCompleted.toggle()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
@@ -89,11 +113,12 @@ struct ChecklistView: View {
 
 // MARK: - Supporting Views
 struct NewItemRow: View {
+   
     @Binding var title: String
-    
-    let tint: Tint
     let onSubmit: () -> Void
     let onAdd: () -> Void
+    
+    @AppStorage("tint") private var tint: Tint = .blue
     
     var body: some View {
         HStack {

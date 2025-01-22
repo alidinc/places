@@ -83,10 +83,11 @@ struct AddressListView: View {
                 )
             )
         }
-        .presentationDetents([.fraction(0.3), .medium, .fraction(0.95)])
         .interactiveDismissDisabled()
-        .presentationBackground(.thinMaterial)
+        .presentationDetents([.fraction(0.3), .medium, .fraction(0.95)])
+        .presentationBackground(.regularMaterial)
         .presentationBackgroundInteraction(.enabled)
+        .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
     }
     
@@ -180,7 +181,7 @@ struct AddressListView: View {
             }
             .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 12))
             .listRowBackground(Color.clear)
-            .listRowSeparatorTint(.gray.opacity(0.45))
+            .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -233,7 +234,6 @@ struct AddressListView: View {
     
     // MARK: - Grouped Addresses
     
-    @MainActor
     private var groupedAddresses: [String: [Address]] {
         let allAddresses = savedAddresses
         let filteredAddresses = allAddresses.filter { address in
@@ -256,7 +256,6 @@ struct AddressListView: View {
         return Dictionary(grouping: sortedAddresses) { $0.country.name.isEmpty ? "Other" : $0.country.name }
     }
     
-    @MainActor
     private var sortedCountries: [String] {
         guard !groupedAddresses.isEmpty else { return [] }
         

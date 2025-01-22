@@ -23,47 +23,47 @@ struct AddressDetailsView: View {
     @Binding var showCountries: Bool
     
     var body: some View {
-        Group {
-            // Address Lines
-            TextField("Address Line 1", text: $addressLine1)
+        Section("Address Details") {
+            Group {
+                // Address Lines
+                TextField("Address Line 1", text: $addressLine1)
+                    .frame(height: 22)
+
+                TextField("Address Line 2", text: $addressLine2)
+
+                // Building Type and Number in one row
+                HStack(alignment: .center, spacing: 8) {
+                    buildingTypeMenu
+
+                    Divider()
+                        .frame(width: 1)
+
+                    TextField("Apt/House #", text: $apartmentNumber)
+                        .frame(maxHeight: .infinity)
+
+                    Divider()
+                        .frame(width: 1)
+
+                    TextField("Postal Code", text: $postalCode)
+                }
                 .frame(height: 22)
+                
+                TextField("City", text: $city)
 
-            TextField("Address Line 2", text: $addressLine2)
+                countryButton
 
-            // Building Type and Number in one row
-            HStack(alignment: .center, spacing: 8) {
-                buildingTypeMenu
-
-                Divider()
-                    .frame(width: 1)
-
-                TextField("Apt/House #", text: $apartmentNumber)
-                    .frame(maxHeight: .infinity)
-
-                Divider()
-                    .frame(width: 1)
-
-                TextField("Postal Code", text: $postalCode)
-            }
-            .frame(height: 22)
-            
-            TextField("City", text: $city)
-
-            countryButton
-
-            // Status and Dates for Mine addresses
-            if addressOwner == .mine {
-                VStack(spacing: 8) {
-                    dateAndCurrentStatusSection
+                // Status and Dates for Mine addresses
+                if addressOwner == .mine {
+                    VStack(spacing: 8) {
+                        dateAndCurrentStatusSection
+                    }
                 }
             }
+            .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
+            .listRowBackground(StyleManager.shared.listRowBackground)
+            .textFieldStyle(.plain)
+            .autocorrectionDisabled()
         }
-        .listRowSeparatorTint(.gray.opacity(0.45))
-        .textFieldStyle(.plain)
-        .autocorrectionDisabled()
-        .presentationDetents([.large])
-        .presentationBackground(.ultraThinMaterial)
-        .presentationCornerRadius(20)
     }
     
     private var countryButton: some View {
@@ -72,6 +72,7 @@ struct AddressDetailsView: View {
         } label: {
             HStack {
                 if let countryData = country, !countryData.name.isEmpty {
+                    Text(countryData.unicodeFlag)
                     Text(countryData.name)
                 } else {
                     Text("Select Country")

@@ -35,16 +35,16 @@ struct AddAddressView: View {
                         OwnerDetailsView(
                             ownerName: $addressFields.ownerName,
                             relationship: $addressFields.relationship,
-                            showContactsList: $showContactsList
+                            showContactsList: $showContactsList,
+                            image: $addressFields.image
                         )
                     }
                     DocumentsSectionView(documents: $addressFields.documents, previewURL: $previewURL)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .scrollContentBackground(.hidden)
             .navigationBarBackButtonHidden()
-            .interactiveDismissDisabled()
+            .scrollContentBackground(.hidden)
             .quickLookPreview($previewURL)
             .animation(.easeInOut, value: addressFields.addressOwner)
             .toolbarRole(.editor)
@@ -64,7 +64,10 @@ struct AddAddressView: View {
                 CountrySelectionView(countryData: $addressFields.country)
             }
             .sheet(isPresented: $showContactsList) {
-                ContactsView { addressFields.ownerName = $0.name }.presentationDetents([.medium])
+                ContactsView {
+                    addressFields.ownerName = $0.name
+                    addressFields.image = $0.image
+                }.presentationDetents([.medium])
             }
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Invalid Input"),
@@ -72,8 +75,10 @@ struct AddAddressView: View {
                       dismissButton: .default(Text("OK")))
             }
         }
+        .interactiveDismissDisabled()
         .presentationDetents([.medium, .fraction(0.95)])
-        .presentationBackground(.ultraThinMaterial)
+        .presentationBackground(.regularMaterial)
+        .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
     }
 
@@ -100,36 +105,26 @@ extension AddAddressView {
     
     // MARK: - Subviews
     var addressSection: some View {
-        Section {
-            AddressDetailsView(
-                addressLine1: $addressFields.addressLine1,
-                addressLine2: $addressFields.addressLine2,
-                apartmentNumber: $addressFields.apartmentNumber,
-                postalCode: $addressFields.postalCode,
-                city: $addressFields.city,
-                buildingType: $addressFields.buildingType,
-                country: $addressFields.country,
-                startDate: $addressFields.startDate,
-                endDate: $addressFields.endDate,
-                isCurrent: $addressFields.isCurrent,
-                addressOwner: $addressFields.addressOwner,
-                showCountries: $showCountries
-            )
-        }
-        .listRowBackground(Color.gray.opacity(0.25))
+        AddressDetailsView(
+            addressLine1: $addressFields.addressLine1,
+            addressLine2: $addressFields.addressLine2,
+            apartmentNumber: $addressFields.apartmentNumber,
+            postalCode: $addressFields.postalCode,
+            city: $addressFields.city,
+            buildingType: $addressFields.buildingType,
+            country: $addressFields.country,
+            startDate: $addressFields.startDate,
+            endDate: $addressFields.endDate,
+            isCurrent: $addressFields.isCurrent,
+            addressOwner: $addressFields.addressOwner,
+            showCountries: $showCountries
+        )
     }
     
     var addressOwnerPicker: some View {
-        Picker("", selection: $addressFields.addressOwner) {
-            ForEach(AddressOwner.allCases, id: \.rawValue) { type in
-                Text(type.rawValue).tag(type)
-            }
-        }
-        .pickerStyle(.segmented)
-        .listRowInsets(.init())
-        .listRowBackground(Color.clear)
-        .padding(.top)
-        .padding(.horizontal)
+        CustomPickerView(selection: $addressFields.addressOwner, items: AddressOwner.allCases) { $0.rawValue }
+            .padding(.top)
+            .padding(.horizontal)
     }
 }
 
@@ -150,6 +145,7 @@ class AddressFields {
     var ownerName = ""
     var relationship = ""
     var isCurrent = false
+    var image: UIImage?
     var documents: [DocumentItem] = []
     
     // MARK: - Validation

@@ -32,6 +32,8 @@ struct SettingsView: View {
         subject: "Support Email",
         messageHeader: "Please describe your issue below."
     )
+    
+    @State private var showOnboarding = false
 
     var body: some View {
         NavigationStack {
@@ -71,13 +73,14 @@ struct SettingsView: View {
                     }
                 }
             }
+            .fullScreenCover(isPresented: $showOnboarding) {
+                OnboardingView(hasCompletedOnboarding: $showOnboarding)
+            }
         }
-        .presentationBackground(.ultraThinMaterial)
+        .presentationBackground(.thinMaterial)
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationCornerRadius(20)
-        .interactiveDismissDisabled()
     }
-
 
     // MARK: - Settings Section
 
@@ -86,9 +89,18 @@ struct SettingsView: View {
             appIconSelector
             tintSelector
             languageSelector
+            showOnboardingButton
         }
-        .listRowBackground(Color.gray.opacity(0.25))
-        .listRowSeparatorTint(.gray.opacity(0.45))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
+    }
+    
+    private var showOnboardingButton: some View {
+        Button {
+            showOnboarding = true
+        } label: {
+            SettingsRowView(icon: "info.circle.fill", title: "Show Onboarding")
+        }
     }
     
     private var languageSelector: some View {
@@ -158,8 +170,8 @@ struct SettingsView: View {
                 SettingsRowView(icon: "info.circle", title: "About")
             }
         }
-        .listRowBackground(Color.gray.opacity(0.25))
-        .listRowSeparatorTint(.gray.opacity(0.45))
+        .listRowBackground(StyleManager.shared.listRowBackground)
+        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
     }
     
     @ViewBuilder

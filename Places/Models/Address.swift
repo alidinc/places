@@ -30,6 +30,7 @@ class Address: Identifiable {
     var ownerName: String
     var relationship: String? = nil
     
+    @Relationship(deleteRule: .cascade) var notes: [Note] = []
     @Relationship(deleteRule: .cascade) var checklistItems: [ChecklistItem] = []
     @Relationship(deleteRule: .cascade) var documents: [DocumentItem] = []
     
@@ -132,32 +133,22 @@ extension Address {
         )
     }
     
-    func createAnnotation(completion: @escaping (PointAnnotation?) -> Void) {
+    func createAnnotation() async -> PointAnnotation? {
         let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(fullAddress) {
-            placemarks,
-            error in
-            if let error {
-                print("Geocoding error: \(error.localizedDescription)")
-                completion(nil)
-            } else if let location = placemarks?.first?.location {
-                let annotation = MKPointAnnotation()
-                annotation.coordinate = location.coordinate
-                annotation.title = self.addressLine1
-                annotation.subtitle = self.city
-                completion(
-                    PointAnnotation(
-                        id: self.id,
-                        latitude: annotation.coordinate.latitude,
-                        longitude: annotation.coordinate.longitude,
-                        name: self.addressLine1,
-                        addressOwner: self.addressOwner
-                    )
+        do {
+            if let location = try await geocoder.geocodeAddressString(fullAddress).first?.location {
+                return PointAnnotation(
+                    id: self.id,
+                    latitude: location.coordinate.latitude,
+                    longitude: location.coordinate.longitude,
+                    name: self.addressLine1,
+                    addressOwner: self.addressOwner
                 )
-            } else {
-                completion(nil)
             }
+        } catch {
+            print("Geocoding error: \(error.localizedDescription)")
         }
+        return nil
     }
     
     var durationInDays: Int {

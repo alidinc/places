@@ -1,5 +1,3 @@
-
-
 import Combine
 import SwiftUI
 import SwiftData
@@ -18,9 +16,11 @@ class EditAddressViewModel {
     var startDate = Date()
     var endDate: Date? = nil
     var buildingType: BuildingType = .flat
+    var addressOwner: AddressOwner = .friend
     var isCurrent = false
     var ownerName = ""
     var relationship = ""
+    var image: UIImage?
     
     // UI State
     var previewURL: URL?
@@ -50,6 +50,7 @@ class EditAddressViewModel {
     }
     
     // MARK: - Methods
+    
     func loadPlaceDetails(from place: Address) {
         addressLine1 = place.addressLine1
         addressLine2 = place.addressLine2
@@ -62,6 +63,7 @@ class EditAddressViewModel {
         buildingType = place.buildingType
         city = place.city
         ownerName = place.ownerName
+        addressOwner = place.addressOwner
         isCurrent = place.id == currentAddressId
         
         if let relationship = place.relationship {
@@ -73,12 +75,14 @@ class EditAddressViewModel {
         }
     }
     
+    @MainActor
     func saveChanges(place: Address, modelContext: ModelContext) {
         place.addressLine1 = addressLine1
         place.addressLine2 = addressLine2
         place.sublocality = sublocality
         place.apartmentNumber = apartmentNumber
         place.city = city
+        place.addressOwner = addressOwner
         if let countryData {
             place.country = countryData
         }

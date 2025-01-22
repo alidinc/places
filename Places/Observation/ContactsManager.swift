@@ -8,6 +8,7 @@
 import Foundation
 import Contacts
 import SwiftUI
+import UIKit
 
 @Observable
 class ContactsManager {
@@ -19,7 +20,7 @@ class ContactsManager {
         isFetching = true
         DispatchQueue.global(qos: .userInitiated).async {
             let store = CNContactStore()
-            let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPostalAddressesKey] as [CNKeyDescriptor]
+            let keysToFetch = [CNContactGivenNameKey, CNContactThumbnailImageDataKey, CNContactPhoneNumbersKey, CNContactFamilyNameKey, CNContactPostalAddressesKey] as [CNKeyDescriptor]
             
             store.requestAccess(for: .contacts) { granted, error in
                 guard granted else { return }
@@ -30,8 +31,20 @@ class ContactsManager {
                 do {
                     try store.enumerateContacts(with: request) { contact, _ in
                         let name = "\(contact.givenName) \(contact.familyName)"
+                        let phone = contact.phoneNumbers.first?.value
+                        var contactImage: UIImage? = nil
                         
-                        fetchedContacts.append(Contact(name: name, phone: ""))
+                        if let thumbnailData = contact.thumbnailImageData {
+                            contactImage = UIImage(data: thumbnailData)
+                        }
+                        
+                        fetchedContacts.append(
+                            Contact(
+                                name: name,
+                                phone: phone?.stringValue ?? "",
+                                image: contactImage
+                            )
+                        )
                     }
                     
                     DispatchQueue.main.async {
@@ -43,17 +56,5 @@ class ContactsManager {
                 }
             }
         }
-    }
-}
-
-struct Contact {
-    let id: String
-    let name: String
-    let phone: String
-    
-    init(id: String = UUID().uuidString, name: String, phone: String) {
-        self.id = id
-        self.name = name
-        self.phone = phone
     }
 }

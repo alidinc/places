@@ -61,19 +61,21 @@ struct AddressRow: View {
                     .foregroundColor(.secondary)
             }
         case .friend:
-            HStack {
-                Text(place.ownerName)
-                    .font(.subheadline.weight(.medium))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(tint.color.opacity(0.5), in: .capsule)
-                
-                if let relationship = place.relationship, !relationship.isEmpty {
-                    Text(relationship)
+            if !place.ownerName.isEmpty {
+                HStack {
+                    Text(place.ownerName)
                         .font(.subheadline.weight(.medium))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .background(tint.color.opacity(0.5), in: .capsule)
+                    
+                    if let relationship = place.relationship, !relationship.isEmpty {
+                        Text(relationship)
+                            .font(.subheadline.weight(.medium))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            .background(tint.color.opacity(0.5), in: .capsule)
+                    }
                 }
             }
         }

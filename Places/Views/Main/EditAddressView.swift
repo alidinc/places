@@ -29,21 +29,21 @@ struct EditAddressView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                if place.addressOwner == .friend {
-                    
+            VStack {
+                addressTypePicker
+                List {
+                    addressDetails
+                    ownerTypeView
+                    documentsSection
+                    checklistSection
+                    postcodeDetails
+                    Spacer(minLength: 50).listRowBackground(Color.clear)
                 }
-                addressDetails
-                documentsSection
-                checklistSection
-                postcodeDetails
-                Spacer(minLength: 50).listRowBackground(Color.clear)
+                .scrollContentBackground(.hidden)
             }
             .toolbarRole(.editor)
-            .scrollContentBackground(.hidden)
             .navigationBarBackButtonHidden()
             .navigationBarTitleDisplayMode(.inline)
-            .interactiveDismissDisabled()
             .onDisappear { NotificationCenter.default.post(name: Constants.Notifications.editingAddress, object: nil) }
             .onAppear { NotificationCenter.default.post(name: Constants.Notifications.editingAddress, object: place) }
             .onAppear { editVM.loadPlaceDetails(from: place) }
@@ -52,18 +52,20 @@ struct EditAddressView: View {
             .sheet(isPresented: $editVM.showChecklist) { ChecklistView(place: place) }
             .sheet(isPresented: $editVM.showContactsList) { ContactsView { editVM.ownerName = $0.name } }
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { saveButton }
+                ToolbarItem(placement: .confirmationAction) { doneButton }
                 ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .principal) { Text("Edit address").font(.headline.weight(.semibold)) }
             }
         }
-        .presentationDetents([.medium, .fraction(0.95)])
+        .interactiveDismissDisabled()
+        .presentationDetents([.medium, .fraction(0.99)])
         .presentationCornerRadius(20)
-        .presentationBackground(.ultraThinMaterial)
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(.regularMaterial)
     }
     
-    private var saveButton: some View {
-        Button("Save") {
+    private var doneButton: some View {
+        Button("Done") {
             editVM.saveChanges(place: place, modelContext: modelContext)
             if editVM.isCurrent {
                 currentAddressId = place.id
@@ -86,6 +88,25 @@ struct EditAddressView: View {
         )
     }
     
+    @ViewBuilder
+    private var ownerTypeView: some View {
+        if place.addressOwner == .friend {
+            OwnerDetailsView(
+                ownerName: $editVM.ownerName,
+                relationship: $editVM.relationship,
+                showContactsList: $editVM.showContactsList,
+                image: $editVM.image
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private var addressTypePicker: some View {
+        CustomPickerView(selection: $editVM.addressOwner, items: AddressOwner.allCases) { $0.rawValue }
+            .padding(.top)
+            .padding(.horizontal)
+    }
+    
     private var addressDetails: some View {
         AddressDetailsView(
             addressLine1: $editVM.addressLine1,
@@ -98,10 +119,9 @@ struct EditAddressView: View {
             startDate: $editVM.startDate,
             endDate: $editVM.endDate,
             isCurrent: $editVM.isCurrent,
-            addressOwner: $place.addressOwner,
+            addressOwner: $editVM.addressOwner,
             showCountries: $editVM.showCountries
         )
-        .listRowBackground(Color.gray.opacity(0.25))
     }
     
     private var postcodeDetails: some View {
