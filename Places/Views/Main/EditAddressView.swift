@@ -50,7 +50,12 @@ struct EditAddressView: View {
             .quickLookPreview($editVM.previewURL)
             .sheet(isPresented: $editVM.showCountries) { CountrySelectionView(countryData: $editVM.countryData) }
             .sheet(isPresented: $editVM.showChecklist) { ChecklistView(place: place) }
-            .sheet(isPresented: $editVM.showContactsList) { ContactsView { editVM.ownerName = $0.name } }
+            .sheet(isPresented: $editVM.showContactsList) {
+                ContactsView {
+                    editVM.ownerName = $0.name
+                    editVM.image = $0.image
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { doneButton }
                 ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
@@ -90,7 +95,7 @@ struct EditAddressView: View {
     
     @ViewBuilder
     private var ownerTypeView: some View {
-        if place.addressOwner == .friend {
+        if place.residentType == .friend {
             OwnerDetailsView(
                 ownerName: $editVM.ownerName,
                 relationship: $editVM.relationship,
@@ -102,7 +107,7 @@ struct EditAddressView: View {
     
     @ViewBuilder
     private var addressTypePicker: some View {
-        CustomPickerView(selection: $editVM.addressOwner, items: AddressOwner.allCases) { $0.rawValue }
+        CustomPickerView(selection: $editVM.addressOwner, items: ResidentType.allCases) { $0.rawValue }
             .padding(.top)
             .padding(.horizontal)
     }

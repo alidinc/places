@@ -17,10 +17,10 @@ struct ContentView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(LocationsManager.self) private var locationsManager
     @Environment(HUDState.self) private var hudState: HUDState
-    @State private var annotations: [PointAnnotation] = []
     @State private var selectedAnnotation: PointAnnotation?
     @State private var position: MapCameraPosition = .automatic
     @State private var showingMultipleCentered = false
+    @State private var isLoadingAnnotations = false
     @Query private var savedAddresses: [Address]
     
     var body: some View {
@@ -46,20 +46,36 @@ struct ContentView: View {
     
     private var MapView: some View {
         Map(position: $position, selection: $selectedAnnotation) {
-            ForEach(annotations, id: \.id) { annotation in
-                Marker(coordinate: .init(latitude: annotation.latitude, longitude: annotation.longitude)) {
-                    Group {
-                        Image(systemName: annotation.addressOwner.icon)
-                        Text(annotation.name)
+            ForEach(savedAddresses) { address in
+                if let latitude = address.latitude,
+                   let longitude = address.longitude {
+                    Marker(coordinate: .init(latitude: latitude, longitude: longitude)) {
+                        Group {
+                            Image(systemName: address.residentType.icon)
+                            Text(address.addressLine1)
+                        }
                     }
+                    .tint(address.residentType == .mine ? tint.color.gradient : Color.orange.gradient)
+                    .tag(PointAnnotation(
+                        id: address.id,
+                        latitude: latitude,
+                        longitude: longitude,
+                        name: address.addressLine1,
+                        addressOwner: address.residentType
+                    ))
                 }
-                .tint(annotation.addressOwner == .mine ? tint.color.gradient : Color.orange.gradient)
-                .tag(annotation)
             }
-            
             UserAnnotation()
         }
         .ignoresSafeArea()
+        .overlay(alignment: .center) {
+            if isLoadingAnnotations {
+                ProgressView()
+                    .padding()
+                    .background(.regularMaterial)
+                    .clipShape(.rect(cornerRadius: 10))
+            }
+        }
     }
     
     private var UserLocationButton: some View {
@@ -128,21 +144,21 @@ extension ContentView {
     @MainActor
     private func loadAnnotations() {
         Task {
-            annotations.removeAll()
+            isLoadingAnnotations = true
             for address in savedAddresses {
-                if let annotation = await address.createAnnotation() {
-                    annotations.append(annotation)
+                if address.latitude == nil || address.longitude == nil {
+                    await address.updateCoordinates()
                 }
             }
+            isLoadingAnnotations = false
         }
     }
     
     @MainActor
     private func handleMap(for address: Address) {
-        Task {
-            if let annotation = await address.createAnnotation() {
-                adjustMapPosition(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
-            }
+        if let latitude = address.latitude,
+           let longitude = address.longitude {
+            adjustMapPosition(latitude: latitude, longitude: longitude)
         }
     }
     

@@ -59,55 +59,39 @@ struct ChecklistView: View {
         .listRowBackground(StyleManager.shared.listRowBackground)
     }
     
-    private var setAllCompletedButton: some View {
-        Section {
-            Button {
-                setAllComplete()
-            } label: {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                    Text("Set all as completed")
-                }
-                .capsuleButtonStyle()
-            }
-            .hSpacing(.trailing)
-        }
-        .listRowBackground(Color.clear)
-        .listRowSpacing(0)
-    }
-    
     // MARK: - Methods
-    private func setAllComplete() {
-        place.checklistItems.forEach { item in
-            item.isCompleted = true
-        }
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        try? modelContext.save()
-    }
     
     private func toggleItem(_ item: ChecklistItem) {
-        item.isCompleted.toggle()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        try? modelContext.save()
+        DispatchQueue.main.async {
+            withAnimation {
+                item.isCompleted.toggle()
+            }
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            try? modelContext.save()
+        }
     }
     
     private func deleteItem(_ item: ChecklistItem) {
-        modelContext.delete(item)
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        try? modelContext.save()
+        DispatchQueue.main.async {
+            modelContext.delete(item)
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            try? modelContext.save()
+        }
     }
     
     private func addNewItem(animate: Bool = true) {
         guard !newChecklistItemTitle.isEmpty else { return }
+        let title = newChecklistItemTitle
+    
+        newChecklistItemTitle = ""
         
-        let block = {
-            let item = ChecklistItem(title: newChecklistItemTitle, addressId: place.id)
-            place.checklistItems.append(item)
-            newChecklistItemTitle = ""
+        DispatchQueue.main.async {
+            let item = ChecklistItem(title: title, addressId: place.id)
+            withAnimation {
+                place.checklistItems.append(item)
+            }
             try? modelContext.save()
         }
-        
-        animate ? withAnimation { block() } : block()
     }
 }
 

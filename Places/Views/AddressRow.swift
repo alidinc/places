@@ -38,7 +38,7 @@ struct AddressRow: View {
     
     @ViewBuilder
     private var bottomInfo: some View {
-        switch place.addressOwner {
+        switch place.residentType {
         case .mine:
             HStack {
                 Group {
@@ -61,15 +61,15 @@ struct AddressRow: View {
                     .foregroundColor(.secondary)
             }
         case .friend:
-            if !place.ownerName.isEmpty {
+            if let residentProperty = place.residentProperty, !residentProperty.name.isEmpty {
                 HStack {
-                    Text(place.ownerName)
+                    Text(residentProperty.name)
                         .font(.subheadline.weight(.medium))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .background(tint.color.opacity(0.5), in: .capsule)
                     
-                    if let relationship = place.relationship, !relationship.isEmpty {
+                    if let relationship = residentProperty.relationship, !relationship.isEmpty {
                         Text(relationship)
                             .font(.subheadline.weight(.medium))
                             .padding(.horizontal, 12)

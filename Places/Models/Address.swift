@@ -26,9 +26,10 @@ class Address: Identifiable {
     var startDate: Date?
     var endDate: Date?
     var hasSeenChecklist: Bool = false
-    var addressOwner: AddressOwner
-    var ownerName: String
-    var relationship: String? = nil
+    var residentType: ResidentType
+    var residentProperty: ResidentProperty?
+    var latitude: Double?
+    var longitude: Double?
     
     @Relationship(deleteRule: .cascade) var notes: [Note] = []
     @Relationship(deleteRule: .cascade) var checklistItems: [ChecklistItem] = []
@@ -46,8 +47,8 @@ class Address: Identifiable {
         buildingType: BuildingType,
         startDate: Date? = nil,
         endDate: Date? = nil,
-        addressOwner: AddressOwner = .mine,
-        ownerName: String
+        residentType: ResidentType = .mine,
+        residentProperty: ResidentProperty? = nil
     ) {
         self.id = id
         self.apartmentNumber = apartmentNumber
@@ -60,8 +61,23 @@ class Address: Identifiable {
         self.buildingType = buildingType
         self.startDate = startDate
         self.endDate = endDate
-        self.addressOwner = addressOwner
-        self.ownerName = ownerName
+        self.residentType = residentType
+        self.residentProperty = residentProperty
+    }
+}
+
+@Model
+class ResidentProperty: Identifiable {
+    var id = UUID()
+    var name: String
+    var relationship: String?
+    var image: Data
+    
+    init(id: UUID = UUID(), name: String, relationship: String? = nil, image: Data) {
+        self.id = id
+        self.name = name
+        self.relationship = relationship
+        self.image = image
     }
 }
 
@@ -88,7 +104,7 @@ enum DocumentType: String, Codable, CaseIterable {
     case other = "Other"
 }
 
-enum AddressOwner: String, Codable, CaseIterable {
+enum ResidentType: String, Codable, CaseIterable {
     
     case mine = "Personal"
     case friend = "Others"
@@ -106,49 +122,15 @@ enum AddressOwner: String, Codable, CaseIterable {
 
 extension Address {
     
-    var annotation: PointAnnotation {
-        let annotation = MKPointAnnotation()
-        let geocoder = CLGeocoder()
-        var coordinate = CLLocationCoordinate2D()
-        
-        let semaphore = DispatchSemaphore(value: 0)
-        geocoder.geocodeAddressString(fullAddress) { placemarks, error in
-            if let location = placemarks?.first?.location {
-                coordinate = location.coordinate
-            }
-            semaphore.signal()
-        }
-        _ = semaphore.wait(timeout: .now() + 2)
-        
-        annotation.coordinate = coordinate
-        annotation.title = self.addressLine1
-        annotation.subtitle = self.city
-        
-        return PointAnnotation(
-            id: self.id,
-            latitude: annotation.coordinate.latitude,
-            longitude: annotation.coordinate.longitude,
-            name: self.addressLine1,
-            addressOwner: self.addressOwner
-        )
-    }
-    
-    func createAnnotation() async -> PointAnnotation? {
-        let geocoder = CLGeocoder()
+    func updateCoordinates() async {
         do {
-            if let location = try await geocoder.geocodeAddressString(fullAddress).first?.location {
-                return PointAnnotation(
-                    id: self.id,
-                    latitude: location.coordinate.latitude,
-                    longitude: location.coordinate.longitude,
-                    name: self.addressLine1,
-                    addressOwner: self.addressOwner
-                )
+            if let location = try await CLGeocoder().geocodeAddressString(fullAddress).first?.location {
+                self.latitude = location.coordinate.latitude
+                self.longitude = location.coordinate.longitude
             }
         } catch {
-            print("Geocoding error: \(error.localizedDescription)")
+            print("Failed to geocode address: \(error)")
         }
-        return nil
     }
     
     var durationInDays: Int {

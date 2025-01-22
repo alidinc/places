@@ -16,7 +16,7 @@ class EditAddressViewModel {
     var startDate = Date()
     var endDate: Date? = nil
     var buildingType: BuildingType = .flat
-    var addressOwner: AddressOwner = .friend
+    var addressOwner: ResidentType = .friend
     var isCurrent = false
     var ownerName = ""
     var relationship = ""
@@ -62,12 +62,14 @@ class EditAddressViewModel {
         endDate = place.endDate ?? .now
         buildingType = place.buildingType
         city = place.city
-        ownerName = place.ownerName
-        addressOwner = place.addressOwner
+        addressOwner = place.residentType
         isCurrent = place.id == currentAddressId
         
-        if let relationship = place.relationship {
-            self.relationship = relationship
+        // Load ResidentProperty data if it exists
+        if let residentProperty = place.residentProperty {
+            ownerName = residentProperty.name
+            relationship = residentProperty.relationship ?? ""
+            image = UIImage(data: residentProperty.image)
         }
         
         if place.country.name == "United Kingdom" {
@@ -82,7 +84,8 @@ class EditAddressViewModel {
         place.sublocality = sublocality
         place.apartmentNumber = apartmentNumber
         place.city = city
-        place.addressOwner = addressOwner
+        place.residentType = addressOwner
+        
         if let countryData {
             place.country = countryData
         }
@@ -90,8 +93,25 @@ class EditAddressViewModel {
         place.startDate = startDate
         place.endDate = endDate
         place.buildingType = buildingType
-        place.ownerName = ownerName
-        place.relationship = relationship
+        
+        // Update or create ResidentProperty
+        if addressOwner == .friend {
+            if let imageData = image?.jpegData(compressionQuality: 0.8) {
+                if let existingProperty = place.residentProperty {
+                    existingProperty.name = ownerName
+                    existingProperty.relationship = relationship
+                    existingProperty.image = imageData
+                } else {
+                    place.residentProperty = ResidentProperty(
+                        name: ownerName,
+                        relationship: relationship,
+                        image: imageData
+                    )
+                }
+            }
+        } else {
+            place.residentProperty = nil
+        }
         
         NotificationCenter.default.post(Notification(name: Constants.Notifications.addressesChanged))
     }

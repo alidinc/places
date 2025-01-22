@@ -67,7 +67,7 @@ struct AddAddressView: View {
                 ContactsView {
                     addressFields.ownerName = $0.name
                     addressFields.image = $0.image
-                }.presentationDetents([.medium])
+                }
             }
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Invalid Input"),
@@ -122,7 +122,7 @@ extension AddAddressView {
     }
     
     var addressOwnerPicker: some View {
-        CustomPickerView(selection: $addressFields.addressOwner, items: AddressOwner.allCases) { $0.rawValue }
+        CustomPickerView(selection: $addressFields.addressOwner, items: ResidentType.allCases) { $0.rawValue }
             .padding(.top)
             .padding(.horizontal)
     }
@@ -141,7 +141,7 @@ class AddressFields {
     var startDate = Date()
     var endDate: Date? = nil
     var buildingType: BuildingType = .flat
-    var addressOwner: AddressOwner = .mine
+    var addressOwner: ResidentType = .mine
     var ownerName = ""
     var relationship = ""
     var isCurrent = false
@@ -175,15 +175,24 @@ class AddressFields {
             buildingType: buildingType,
             startDate: startDate,
             endDate: endDate,
-            addressOwner: addressOwner,
-            ownerName: ownerName
+            residentType: addressOwner
         )
         
-        place.relationship = relationship
+        // Create ResidentProperty if it's a friend's address
+        if addressOwner == .friend {
+            if let imageData = image?.jpegData(compressionQuality: 0.8) {
+                let residentProperty = ResidentProperty(
+                    name: ownerName,
+                    relationship: relationship,
+                    image: imageData
+                )
+                place.residentProperty = residentProperty
+            }
+        }
         
         // Add documents to the place
         place.documents = documents
-
+        
         // Add default checklist items if it's the user's address
         if addressOwner == .mine {
             let checklistItems = DefaultChecklistItems.items.map { itemTitle in

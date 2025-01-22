@@ -26,7 +26,7 @@ struct AddressListView: View {
     @State private var expandedSections: Set<String> = []
     @State private var searchText = ""
     @State private var showingCopyAlert = false
-    @State private var selectedAddressOwnerType: AddressOwner = .mine
+    @State private var selectedAddressOwnerType: ResidentType = .mine
     
     @State private var showAddAddress = false
     @State private var addressToEdit: Address?
@@ -135,7 +135,7 @@ struct AddressListView: View {
     
     private var addressTypePicker: some View {
         Menu {
-            ForEach(AddressOwner.allCases, id: \.self) { type in
+            ForEach(ResidentType.allCases, id: \.self) { type in
                 Button {
                     selectedAddressOwnerType = type
                 } label: {
@@ -237,32 +237,29 @@ struct AddressListView: View {
     private var groupedAddresses: [String: [Address]] {
         let allAddresses = savedAddresses
         let filteredAddresses = allAddresses.filter { address in
-            let matchesType = selectedAddressOwnerType == .mine ? address.addressOwner == .mine : address.addressOwner == .friend
+            let matchesType = selectedAddressOwnerType == .mine ? address.residentType == .mine : address.residentType == .friend
             let matchesSearch = searchText.isEmpty ||
             address.fullAddress.localizedCaseInsensitiveContains(searchText)
             return matchesType && matchesSearch
         }
         
         let sortedAddresses = filteredAddresses.sorted { first, second in
-            // First, prioritize the current address
             if first.id == currentAddressId { return true }
             if second.id == currentAddressId { return false }
-            
-            // Then sort by start date
             return (first.startDate ?? .distantPast) > (second.startDate ?? .distantPast)
         }
         
-        // Use a default country name if none exists
         return Dictionary(grouping: sortedAddresses) { $0.country.name.isEmpty ? "Other" : $0.country.name }
     }
     
     private var sortedCountries: [String] {
-        guard !groupedAddresses.isEmpty else { return [] }
+        let allAddresses = groupedAddresses
+        guard !allAddresses.isEmpty else { return [] }
         
-        let countries = Array(groupedAddresses.keys)
+        let countries = Array(allAddresses.keys)
         return countries.sorted { firstCountry, secondCountry in
-            let firstAddresses = groupedAddresses[firstCountry] ?? []
-            let secondAddresses = groupedAddresses[secondCountry] ?? []
+            let firstAddresses = allAddresses[firstCountry] ?? []
+            let secondAddresses = allAddresses[secondCountry] ?? []
             
             // Check if either country contains the current address
             let firstHasCurrent = firstAddresses.contains { $0.id == currentAddressId }

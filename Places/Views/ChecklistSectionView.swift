@@ -31,7 +31,7 @@ struct ChecklistSectionView: View {
         ZStack {
             let completedCount = place.checklistItems.filter({ $0.isCompleted }).count
             let totalCount = place.checklistItems.count
-            let isAllCompleted = completedCount == totalCount
+            let isAllCompleted = completedCount == totalCount && totalCount > 0
             
             // Background circle
             Circle()
@@ -78,9 +78,14 @@ struct ChecklistSectionView: View {
         Button {
             showChecklist = true
         } label: {
-            Text("View Checklist")
+            HStack {
+                Text("View Checklist")
+                    .font(.subheadline.weight(.medium))
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(tint.color)
         }
-        .capsuleButtonStyle()
     }
 }
 

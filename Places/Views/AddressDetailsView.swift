@@ -19,7 +19,7 @@ struct AddressDetailsView: View {
     @Binding var startDate: Date
     @Binding var endDate: Date?
     @Binding var isCurrent: Bool
-    @Binding var addressOwner: AddressOwner
+    @Binding var addressOwner: ResidentType
     @Binding var showCountries: Bool
     
     var body: some View {

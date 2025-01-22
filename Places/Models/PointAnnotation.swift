@@ -15,9 +15,9 @@ class PointAnnotation {
     var latitude: Double
     var longitude: Double
     var name: String
-    var addressOwner: AddressOwner
+    var addressOwner: ResidentType
     
-    init(id: String, latitude: Double, longitude: Double, name: String, addressOwner: AddressOwner) {
+    init(id: String, latitude: Double, longitude: Double, name: String, addressOwner: ResidentType) {
         self.id = id
         self.latitude = latitude
         self.longitude = longitude
