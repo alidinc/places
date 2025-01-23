@@ -178,8 +178,8 @@ extension ContentView {
             position = .region(
                 MKCoordinateRegion(
                     center: adjustedCenter,
-                    latitudinalMeters: 2000,
-                    longitudinalMeters: 2000
+                    latitudinalMeters: 3000,
+                    longitudinalMeters: 3000
                 )
             )
         }

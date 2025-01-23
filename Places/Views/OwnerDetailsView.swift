@@ -41,28 +41,28 @@ struct OwnerDetailsView: View {
                     .buttonStyle(.plain)
                     .contentShape(Rectangle())
                     
+                    
                     TextField("Name", text: $ownerName)
                     
                     Spacer()
-                }
-                
-                Button {
-                    showContactsList = true
-                } label: {
-                    HStack {
-                        Text("Choose from your contacts list")
-                            .foregroundStyle(tint.color)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    
+                    Button {
+                        showContactsList = true
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text("Contacts")
+                                .font(.subheadline.weight(.medium))
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                        }
+                        .foregroundStyle(tint.color)
                     }
-                    .padding(.vertical, 4)
+                    .buttonStyle(.plain)
+                    .contentShape(.rect)
                 }
-                .buttonStyle(.plain)
-                .contentShape(.rect)
                 
-                Divider().background(.gray.opacity(0.45))
+                Divider().background(StyleManager.shared.dividerColor)
                 
                 HStack {
                     Text("Relationship")

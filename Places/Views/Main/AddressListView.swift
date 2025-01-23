@@ -33,6 +33,7 @@ struct AddressListView: View {
     @State private var showChecklist = false
     @State private var showSettings = false
     @State private var checklistAddress: Address?
+    @State private var currentDetent: PresentationDetent = .fraction(0.35)
     @Query private var savedAddresses: [Address]
     
     var body: some View {
@@ -84,11 +85,16 @@ struct AddressListView: View {
             )
         }
         .interactiveDismissDisabled()
-        .presentationDetents([.fraction(0.3), .medium, .fraction(0.95)])
+        .presentationDetents([.fraction(0.35), .medium, .fraction(0.95)], selection: $currentDetent)
         .presentationBackground(.thinMaterial)
         .presentationBackgroundInteraction(.enabled)
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
+        .onChange(of: currentDetent) { oldValue, newValue in
+            if oldValue != newValue {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
+        }
     }
     
     // MARK: - Views
@@ -139,7 +145,7 @@ struct AddressListView: View {
                 Button {
                     selectedAddressOwnerType = type
                 } label: {
-                    Label("\(type.rawValue) Addresses", systemImage: type.icon)
+                    Label(type.rawValue, systemImage: type.icon)
                 }
                 .tag(type)
             }
@@ -147,8 +153,9 @@ struct AddressListView: View {
             HStack {
                 Image(systemName: selectedAddressOwnerType.icon)
                     .font(.subheadline.weight(.bold))
+                
                 HStack(spacing: 2) {
-                    Text("\(selectedAddressOwnerType.rawValue) Addresses")
+                    Text(selectedAddressOwnerType.rawValue)
                         .font(.title3.weight(.semibold))
                     Image(systemName: "chevron.down")
                         .font(.caption.weight(.bold))

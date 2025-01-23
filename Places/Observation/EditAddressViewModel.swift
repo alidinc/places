@@ -16,7 +16,7 @@ class EditAddressViewModel {
     var startDate = Date()
     var endDate: Date? = nil
     var buildingType: BuildingType = .flat
-    var addressOwner: ResidentType = .friend
+    var residentType: ResidentType = .friend
     var isCurrent = false
     var ownerName = ""
     var relationship = ""
@@ -25,6 +25,7 @@ class EditAddressViewModel {
     // UI State
     var previewURL: URL?
     var showCountries = false
+    var showImagePicker = false
     var showDocumentPicker = false
     var showContactsList = false
     var showChecklist = false
@@ -44,12 +45,19 @@ class EditAddressViewModel {
         UserDefaults.standard.string(forKey: "current") ?? ""
     }
     
-    // MARK: - Initialization
-    init(place: Address) {
-        loadPlaceDetails(from: place)
-    }
-    
     // MARK: - Methods
+    
+    func hasUnsavedChanges(place: Address) -> Bool {
+        return residentType != place.residentType ||
+        addressLine1 != place.addressLine1 ||
+        addressLine2 != place.addressLine2 ||
+        apartmentNumber != place.apartmentNumber ||
+        city != place.city ||
+        postcode != place.postcode ||
+        countryData != place.country ||
+        startDate != place.startDate ||
+        endDate != place.endDate
+    }
     
     func loadPlaceDetails(from place: Address) {
         addressLine1 = place.addressLine1
@@ -62,7 +70,7 @@ class EditAddressViewModel {
         endDate = place.endDate ?? .now
         buildingType = place.buildingType
         city = place.city
-        addressOwner = place.residentType
+        residentType = place.residentType
         isCurrent = place.id == currentAddressId
         
         // Load ResidentProperty data if it exists
@@ -86,7 +94,7 @@ class EditAddressViewModel {
         place.sublocality = sublocality
         place.apartmentNumber = apartmentNumber
         place.city = city
-        place.residentType = addressOwner
+        place.residentType = residentType
         
         if let countryData {
             place.country = countryData
@@ -97,7 +105,7 @@ class EditAddressViewModel {
         place.buildingType = buildingType
         
         // Update or create ResidentProperty
-        if addressOwner == .friend {
+        if residentType == .friend {
             place.residentProperty = ResidentProperty(
                 name: ownerName,
                 relationship: relationship,

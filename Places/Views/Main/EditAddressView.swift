@@ -5,7 +5,6 @@
 //  Created by alidinc on 11/12/2024.
 //
 
-import PhotosUI
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
@@ -21,13 +20,9 @@ struct EditAddressView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(CountryViewModel.self) var viewModel
     
-    @State private var editVM: EditAddressViewModel
-    @State private var showImagePicker = false
-    
-    init(place: Address) {
-        self.place = place
-        self.editVM = EditAddressViewModel(place: place)
-    }
+    @State private var editVM = EditAddressViewModel()
+    @State private var showCancelDialog = false
+    @State private var showDeleteConfirmation = false
     
     var body: some View {
         NavigationStack {
@@ -39,6 +34,8 @@ struct EditAddressView: View {
                     documentsSection
                     checklistSection
                     postcodeDetails
+                    deleteButton
+                    
                     Spacer(minLength: 50).listRowBackground(Color.clear)
                 }
                 .scrollContentBackground(.hidden)
@@ -51,6 +48,7 @@ struct EditAddressView: View {
             .onAppear { HapticsManager.shared.vibrateForSelection() }
             .onAppear { editVM.loadPlaceDetails(from: place) }
             .quickLookPreview($editVM.previewURL)
+            .sheet(isPresented: $editVM.showImagePicker) { ImagePicker(image: $editVM.image) }
             .sheet(isPresented: $editVM.showCountries) { CountrySelectionView(countryData: $editVM.countryData) }
             .sheet(isPresented: $editVM.showChecklist) { ChecklistView(place: place) }
             .sheet(isPresented: $editVM.showContactsList) {
@@ -61,20 +59,43 @@ struct EditAddressView: View {
                     }
                 }
             }
+            .confirmationDialog(
+                "Discard Changes?",
+                isPresented: $showCancelDialog,
+                titleVisibility: .visible
+            ) {
+                Button("Discard Changes", role: .destructive) {
+                    dismiss()
+                }
+                Button("Keep Editing", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to discard your changes?")
+            }
+            .confirmationDialog(
+                "Delete Address",
+                isPresented: $showDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    deleteAddress()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to delete this address? This action cannot be undone.")
+            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { doneButton }
-                ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .principal) { Text("Edit address").font(.headline.weight(.semibold)) }
-            }
-            .photosPicker(
-                isPresented: $showImagePicker,
-                selection: .init(
-                    get: { nil },
-                    set: { newValue in
-                        handleImageSelection(newValue)
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        if editVM.hasUnsavedChanges(place: place) {
+                            showCancelDialog = true
+                        } else {
+                            dismiss()
+                        }
                     }
-                )
-            )
+                }
+                ToolbarItem(placement: .principal) { Text(place.mainAddressDetails).font(.headline.weight(.semibold)) }
+            }
         }
         .interactiveDismissDisabled()
         .presentationDetents([.medium, .fraction(0.99)])
@@ -109,12 +130,12 @@ struct EditAddressView: View {
     
     @ViewBuilder
     private var ownerTypeView: some View {
-        if editVM.addressOwner == .friend {
+        if editVM.residentType == .friend {
             OwnerDetailsView(
                 ownerName: $editVM.ownerName,
                 relationship: $editVM.relationship,
                 showContactsList: $editVM.showContactsList,
-                showImagePicker: $showImagePicker,
+                showImagePicker: $editVM.showImagePicker,
                 image: $editVM.image
             )
         }
@@ -122,7 +143,7 @@ struct EditAddressView: View {
     
     @ViewBuilder
     private var addressTypePicker: some View {
-        CustomPickerView(selection: $editVM.addressOwner, items: ResidentType.allCases) { $0.rawValue }
+        CustomPickerView(selection: $editVM.residentType, items: ResidentType.allCases) { $0.rawValue }
             .padding(.top)
             .padding(.horizontal)
     }
@@ -139,7 +160,7 @@ struct EditAddressView: View {
             startDate: $editVM.startDate,
             endDate: $editVM.endDate,
             isCurrent: $editVM.isCurrent,
-            addressOwner: $editVM.addressOwner,
+            addressOwner: $editVM.residentType,
             showCountries: $editVM.showCountries
         )
     }
@@ -155,6 +176,24 @@ struct EditAddressView: View {
 
     private var checklistSection: some View {
         ChecklistSectionView(place: place, showChecklist: $editVM.showChecklist)
+    }
+    
+    private var deleteButton: some View {
+        Section {
+            Button {
+                showDeleteConfirmation = true
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("Delete Address")
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.red)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .listRowInsets(.init())
+        .listRowBackground(Color.clear)
     }
 
     @ViewBuilder
@@ -172,20 +211,47 @@ struct EditAddressView: View {
         .padding(.vertical, 4)
     }
     
-    private func handleImageSelection(_ selection: PhotosPickerItem?) {
-        guard let selection = selection else { return }
-        
-        Task {
-            do {
-                guard let data = try await selection.loadTransferable(type: Data.self) else { return }
-                if let newImage = UIImage(data: data) {
-                    await MainActor.run {
-                        editVM.image = newImage
-                    }
-                }
-            } catch {
-                print("Failed to load image: \(error)")
+    private func deleteAddress() {
+        modelContext.delete(place)
+        NotificationCenter.default.post(name: Constants.Notifications.deletedAddress, object: place)
+        dismiss()
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary
+        picker.allowsEditing = true
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let editedImage = info[.editedImage] as? UIImage {
+                parent.image = editedImage
             }
+            parent.dismiss()
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
         }
     }
 }

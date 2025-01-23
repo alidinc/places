@@ -16,10 +16,27 @@ struct OnboardingView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var scheme
     @State private var selectedPage = 0
+    @State private var hasSkipButton = false
+    
+    init(hasCompletedOnboarding: Binding<Bool>, hasSkip: Bool = false) {
+        self._hasCompletedOnboarding = hasCompletedOnboarding
+        self.hasSkipButton = hasSkip
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            // Content TabView
+            if hasSkipButton {
+                HStack {
+                    Spacer()
+                    Button("Skip") {
+                        completeOnboarding()
+                    }
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.red)
+                    .padding()
+                }
+            }
+            
             TabView(selection: $selectedPage) {
                 ForEach(Array(OnboardingPage.pages.enumerated()), id: \.element.id) { index, page in
                     Group {
@@ -126,13 +143,13 @@ struct OnboardingView: View {
                            }
                    }
                }
-               .padding()
+               .padding(.top)
+               .padding(.horizontal, 60)
                
                Spacer()
            }
        }
 
-    
     
       private func featuresPage(_ page: OnboardingPage) -> some View {
           VStack(alignment: .leading, spacing: 32) {

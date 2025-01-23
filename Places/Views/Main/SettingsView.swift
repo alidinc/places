@@ -75,7 +75,7 @@ struct SettingsView: View {
                 }
             }
             .fullScreenCover(isPresented: $showOnboarding) {
-                OnboardingView(hasCompletedOnboarding: $showOnboarding)
+                OnboardingView(hasCompletedOnboarding: $showOnboarding, hasSkip: true)
             }
         }
         .presentationBackground(.thinMaterial)

@@ -73,9 +73,8 @@ struct AddAddressView: View {
                 ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .principal) { Text("Add a new address").font(.headline.weight(.semibold)) }
             }
-            .sheet(isPresented: $showCountries) {
-                CountrySelectionView(countryData: $addressFields.country)
-            }
+            .sheet(isPresented: $showImagePicker) { ImagePicker(image: $addressFields.image) }
+            .sheet(isPresented: $showCountries) { CountrySelectionView(countryData: $addressFields.country) }
             .sheet(isPresented: $showContactsList) {
                 ContactsView {
                     addressFields.ownerName = $0.name
@@ -90,15 +89,7 @@ struct AddAddressView: View {
                       message: Text(alertMessage),
                       dismissButton: .default(Text("OK")))
             }
-            .photosPicker(
-                isPresented: $showImagePicker,
-                selection: .init(
-                    get: { nil },
-                    set: { newValue in
-                        handleImageSelection(newValue)
-                    }
-                )
-            )
+            
         }
         .interactiveDismissDisabled()
         .presentationDetents([.medium, .fraction(0.95)])

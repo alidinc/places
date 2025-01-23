@@ -18,6 +18,7 @@ struct CustomPickerView<T: Hashable>: View {
         HStack {
             ForEach(items, id: \.self) { item in
                 Button {
+                    HapticsManager.shared.vibrateForSelection()
                     withAnimation(.spring(duration: 0.35, bounce: 0.15)) {
                         selection = item
                     }
