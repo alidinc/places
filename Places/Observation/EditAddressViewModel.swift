@@ -1,4 +1,5 @@
 import Combine
+import PhotosUI
 import SwiftUI
 import SwiftData
 
@@ -29,7 +30,7 @@ class EditAddressViewModel {
     var showDocumentPicker = false
     var showContactsList = false
     var showChecklist = false
-    
+
     // Postcode Lookup State
     var postcodeResult: PostcodeResult? // The postcode data
     var isLoading = false
@@ -54,9 +55,7 @@ class EditAddressViewModel {
         apartmentNumber != place.apartmentNumber ||
         city != place.city ||
         postcode != place.postcode ||
-        countryData != place.country ||
-        startDate != place.startDate ||
-        endDate != place.endDate
+        countryData != place.country
     }
     
     func loadPlaceDetails(from place: Address) {

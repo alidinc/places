@@ -25,25 +25,15 @@ struct AddressDetailsView: View {
     var body: some View {
         Section("Address Details") {
             Group {
-                // Address Lines
-                TextField("Address Line 1", text: $addressLine1)
-                    .frame(height: 22)
-
+                TextField("Address Line 1", text: $addressLine1).frame(height: 22)
                 TextField("Address Line 2", text: $addressLine2)
 
-                // Building Type and Number in one row
                 HStack(alignment: .center, spacing: 8) {
                     buildingTypeMenu
 
-                    Divider()
-                        .frame(width: 1)
-
-                    TextField("Apt/House #", text: $apartmentNumber)
-                        .frame(maxHeight: .infinity)
-
-                    Divider()
-                        .frame(width: 1)
-
+                    Divider().frame(width: 1)
+                    TextField("Apt/House #", text: $apartmentNumber).frame(maxHeight: .infinity)
+                    Divider().frame(width: 1)
                     TextField("Postal Code", text: $postalCode)
                 }
                 .frame(height: 22)
@@ -52,7 +42,6 @@ struct AddressDetailsView: View {
 
                 countryButton
 
-                // Status and Dates for Mine addresses
                 if addressOwner == .mine {
                     VStack(spacing: 8) {
                         dateAndCurrentStatusSection
@@ -76,13 +65,13 @@ struct AddressDetailsView: View {
                     Text(countryData.name)
                 } else {
                     Text("Select Country")
-                        .foregroundStyle(tint.color)
+                        .font(.subheadline.weight(.medium))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.caption.weight(.semibold))
             }
+            .foregroundStyle(tint.color)
         }
     }
     
@@ -120,9 +109,8 @@ struct AddressDetailsView: View {
                 }))
             }
             
-            Divider()
-                .background(.gray.opacity(0.45))
-            
+            Divider().background(StyleManager.shared.dividerColor)
+
             HStack {
                 Text("Is this your current address?")
                     .foregroundStyle(.secondary)
@@ -131,7 +119,6 @@ struct AddressDetailsView: View {
                     .labelsHidden()
                     .tint(.green)
             }
-            .padding(.top)
         }
     }
     
@@ -146,5 +133,3 @@ struct AddressDetailsView: View {
         }
     }
 }
-
-// End of file. No additional code.

@@ -33,7 +33,7 @@ struct ChecklistView: View {
         }
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationCornerRadius(20)
-        .presentationBackground(.thinMaterial)
+        .presentationBackground(.regularMaterial)
     }
     
     // MARK: - View Components

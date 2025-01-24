@@ -22,19 +22,17 @@ struct PostcodeDetailsView: View {
             } header: {
                 Text("Local Info")
             } footer: {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 0) {
                         Text("This data is sourced from ")
                         Link("postcodes.io", destination: URL(string: "https://postcodes.io")!)
                             .foregroundStyle(tint.color)
-                            .font(.footnote)
                     }
-                    
+
                     Text("Kindly verify if the information is accurate.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                 }
-                .padding(.top, 8)
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
             .listRowBackground(StyleManager.shared.listRowBackground)
             .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
@@ -53,15 +51,8 @@ struct PostcodeDetailsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Group {
                         InfoRow(title: "Postcode", value: postcodeResult.postcode)
-                        InfoRow(title: "Country", value: postcodeResult.country)
-                        if let region = postcodeResult.region {
-                            InfoRow(title: "Region", value: region)
-                        }
                         InfoRow(title: "Admin District", value: postcodeResult.adminDistrict)
                         InfoRow(title: "Admin Ward", value: postcodeResult.adminWard)
-                        
-                        InfoRow(title: "Longitude", value: String(format: "%.6f", postcodeResult.longitude))
-                        InfoRow(title: "Latitude", value: String(format: "%.6f", postcodeResult.latitude))
                         InfoRow(title: "NHS Health Authority", value: postcodeResult.nhsHa)
                     }
                 }

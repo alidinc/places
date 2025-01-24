@@ -103,7 +103,13 @@
     "Add Note" : {
 
     },
+    "Add notes to this address using the text field above." : {
+
+    },
     "Add other addresses to get started." : {
+
+    },
+    "Add photos to this address by tapping the plus button." : {
 
     },
     "Add your own addresses to get started." : {
@@ -185,13 +191,22 @@
         }
       }
     },
+    "Are you sure you want to delete %lld photos?" : {
+
+    },
     "Are you sure you want to delete this address? This action cannot be undone." : {
 
     },
     "Are you sure you want to delete this note?" : {
 
     },
+    "Are you sure you want to delete this photo?" : {
+
+    },
     "Are you sure you want to discard your changes?" : {
+
+    },
+    "Attachments" : {
 
     },
     "Black" : {
@@ -341,10 +356,19 @@
     "Delete" : {
 
     },
+    "Delete %lld" : {
+
+    },
     "Delete Address" : {
 
     },
     "Delete Note" : {
+
+    },
+    "Delete Photo" : {
+
+    },
+    "Delete Photos" : {
 
     },
     "Developer" : {
@@ -414,9 +438,6 @@
         }
       }
     },
-    "Go to your notes" : {
-
-    },
     "Green" : {
       "localizations" : {
         "tr" : {
@@ -428,6 +449,7 @@
       }
     },
     "I've designed Places with a focus on minimalism, and functionality, ensuring it meets the needs of everyone." : {
+      "extractionState" : "stale",
       "localizations" : {
         "tr" : {
           "stringUnit" : {
@@ -525,6 +547,12 @@
         }
       }
     },
+    "No Notes" : {
+
+    },
+    "No Photos" : {
+
+    },
     "Notes" : {
 
     },
@@ -568,6 +596,9 @@
         }
       }
     },
+    "Photos" : {
+
+    },
     "Pink" : {
       "localizations" : {
         "tr" : {
@@ -587,6 +618,9 @@
           }
         }
       }
+    },
+    "Places is designed to help you keep track of your personal journey, making it simple to record and remember every place you've called home. You can also store addresses of friends and family, making it your personal address book with a story." : {
+
     },
     "Postal Code" : {
       "localizations" : {
@@ -667,13 +701,13 @@
         }
       }
     },
-    "Search addresses" : {
+    "Search address" : {
 
     },
-    "Search contacts" : {
+    "Searching..." : {
 
     },
-    "Search countries" : {
+    "Select" : {
 
     },
     "Select a country" : {
@@ -735,13 +769,10 @@
         }
       }
     },
-    "Show Onboarding" : {
-
-    },
     "Skip" : {
 
     },
-    "Tap the plus button to use this location for your new address details below." : {
+    "Tap to use your current location for your new address details below, or search for a new address." : {
 
     },
     "Thank You 💕" : {
@@ -777,10 +808,10 @@
         }
       }
     },
-    "Use your current location" : {
+    "View Checklist" : {
 
     },
-    "View Checklist" : {
+    "View Onboarding" : {
 
     },
     "Welcome to Places" : {

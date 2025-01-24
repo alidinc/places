@@ -32,7 +32,7 @@ struct CustomSelectionView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                     .clipShape(.rect(cornerRadius: 8))
-                    .shadow(color: scheme == .dark ? .white.opacity(0.1) : .black.opacity(0.2), radius: 10)
+                    .shadow(color: scheme == .dark ? .white.opacity(0.1) : .black.opacity(0.2), radius: 2)
             } else if let imageName = imageName {
                 Image(systemName: imageName)
             }

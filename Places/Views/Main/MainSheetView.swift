@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import Contacts
 
-struct AddressListView: View {
+struct MainSheetView: View {
     
     @AppStorage("current") private var currentAddressId = ""
     @AppStorage("tint") private var tint: Tint = .blue
@@ -50,29 +50,14 @@ struct AddressListView: View {
                 .padding(.top, 20)
                 .padding(.horizontal)
                 
-                searchBar
-                
-                if !groupedAddresses.isEmpty {
-                    listView
-                } else {
-                    ContentUnavailableView(
-                        "Address Book is Empty",
-                        systemImage: "book",
-                        description: Text(selectedAddressOwnerType == .mine ? "Add your own addresses to get started." : "Add other addresses to get started.")
-                    )
-                    .scaleEffect(0.75)
-                }
+                CustomSearchBar(text: $searchText, placeholder: "Search address") { }
+
+                listView
             }
             .onAppear(perform: handleExpansionForCurrentAddress)
-            .sheet(isPresented: $showAddAddress, content: {
-                AddAddressView()
-            })
-            .sheet(item: $addressToEdit, content: { address in
-                EditAddressView(place: address)
-            })
-            .sheet(isPresented: $showSettings, content: {
-                SettingsView(language: language)
-            })
+            .sheet(isPresented: $showAddAddress) { AddAddressView() }
+            .sheet(item: $addressToEdit) { EditAddressView(place: $0) }
+            .sheet(isPresented: $showSettings) { SettingsView(language: language) }
             .customAlert(
                 isPresented: $showDeleteAlert,
                 config: .init(
@@ -118,26 +103,7 @@ struct AddressListView: View {
         .font(.title3.weight(.semibold))
         .tint(tint.color)
     }
-    
-    private var searchBar: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-                .font(.caption)
-            TextField("Search addresses", text: $searchText)
-                .textFieldStyle(.plain)
-                .focused($focused)
-                .font(.headline.weight(.medium))
-                .showClearButton($searchText) {
-                    searchText = ""
-                    focused = false
-                }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.thickMaterial.opacity(0.65), in: .rect(cornerRadius: 12))
-        .padding(.horizontal)
-    }
+
     
     private var addressTypePicker: some View {
         Menu {
@@ -154,46 +120,56 @@ struct AddressListView: View {
                 Image(systemName: selectedAddressOwnerType.icon)
                     .font(.subheadline.weight(.bold))
                 
-                HStack(spacing: 2) {
+                HStack(spacing: 3) {
                     Text(selectedAddressOwnerType.rawValue)
                         .font(.title3.weight(.semibold))
                     Image(systemName: "chevron.down")
-                        .font(.caption.weight(.bold))
+                        .font(.subheadline.weight(.bold))
                 }
             }
             .foregroundStyle(tint.color)
         }
     }
-    
+
+    @ViewBuilder
     private var listView: some View {
-        List {
-            ForEach(sortedCountries, id: \.self) { country in
-                DisclosureGroup(isExpanded: isExpandedBinding(for: country)) {
-                    ForEach(groupedAddresses[country] ?? []) { address in
-                        Button {
-                            addressToEdit = address
-                        } label: {
-                            AddressRow(place: address)
+        if !groupedAddresses.isEmpty {
+            List {
+                ForEach(sortedCountries, id: \.self) { country in
+                    DisclosureGroup(isExpanded: isExpandedBinding(for: country)) {
+                        ForEach(groupedAddresses[country] ?? []) { address in
+                            Button {
+                                addressToEdit = address
+                            } label: {
+                                AddressRow(place: address)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                deleteButton(for: address)
+                                shareButton(for: address)
+                                NavigationButton(address: address)
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                clipboardButton(for: address)
+                            }
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            deleteButton(for: address)
-                            shareButton(for: address)
-                            NavigationButton(address: address)
-                        }
-                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                            clipboardButton(for: address)
-                        }
+                    } label: {
+                        sectionHeader(for: country)
                     }
-                } label: {
-                    sectionHeader(for: country)
                 }
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 12))
+                .listRowBackground(Color.clear)
+                .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
             }
-            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 12))
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+        } else {
+            ContentUnavailableView(
+                "Address Book is Empty",
+                systemImage: "book",
+                description: Text(selectedAddressOwnerType == .mine ? "Add your own addresses to get started." : "Add other addresses to get started.")
+            )
+            .scaleEffect(0.75)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
     }
     
     // MARK: - Buttons
@@ -236,7 +212,7 @@ struct AddressListView: View {
             
             Text(country.isEmpty ? "Unknown Country" : country)
                 .font(.headline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary.opacity(0.75))
         }
         .padding(.horizontal)
     }

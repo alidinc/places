@@ -17,7 +17,7 @@ struct AddressRow: View {
     var place: Address
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             addressLineView
             bottomInfo
         }
@@ -47,11 +47,12 @@ struct AddressRow: View {
                     }
                 }
             }
-            VStack(alignment: .leading, spacing: 4) {
+
+            VStack(alignment: .leading, spacing: 2) {
                 Text(place.mainAddressDetails)
                 Text(place.localityDetails)
             }
-            .font(.headline.weight(.medium))
+            .font(.subheadline.weight(.medium))
         }
     }
     
@@ -84,14 +85,14 @@ struct AddressRow: View {
                 HStack {
                     Text(residentProperty.name)
                         .font(.subheadline.weight(.medium))
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(tint.color.opacity(0.5), in: .capsule)
                     
                     if let relationship = residentProperty.relationship, !relationship.isEmpty {
                         Text(relationship)
                             .font(.subheadline.weight(.medium))
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 10)
                             .padding(.vertical, 4)
                             .background(tint.color.opacity(0.5), in: .capsule)
                     }

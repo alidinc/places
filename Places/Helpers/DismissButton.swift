@@ -9,10 +9,13 @@ struct DismissButton: View {
             dismiss()
         } label: {
             Image(systemName: "xmark")
-                .font(.system(size: 10).weight(.bold))
+                .font(.system(size: 11).weight(.bold))
                 .foregroundStyle(.gray.opacity(0.75))
-                .padding(5)
-                .background(Color.gray.opacity(0.15), in: .circle)
+                .padding(8)
+                .background {
+                    StyleManager.shared.listRowBackground
+                        .clipShape(.circle)
+                }
         }
     }
 }

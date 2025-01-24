@@ -28,27 +28,30 @@ struct CountrySelectionView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(filteredCountries, id: \.self) { data in
-                    Button {
-                        countryData = data
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Text("\(data.unicodeFlag) \(data.name)")
-                            Spacer()
-                            if countryData?.iso2 == data.iso2 {
-                                Image(systemName: "checkmark")
+            VStack {
+                CustomSearchBar(text: $searchText, placeholder: "Search countries") { }
+
+                List {
+                    ForEach(filteredCountries, id: \.self) { data in
+                        Button {
+                            countryData = data
+                            dismiss()
+                        } label: {
+                            HStack {
+                                Text("\(data.unicodeFlag) \(data.name)")
+                                Spacer()
+                                if countryData?.iso2 == data.iso2 {
+                                    Image(systemName: "checkmark")
+                                }
                             }
                         }
                     }
+                    .listRowBackground(StyleManager.shared.listRowBackground)
+                    .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
                 }
-                .listRowBackground(StyleManager.shared.listRowBackground)
-                .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
+                .scrollContentBackground(.hidden)
+                .padding(.top, -20)
             }
-            .padding(.top, -20)
-            .scrollContentBackground(.hidden)
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search countries")
             .navigationTitle("Select a country")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
@@ -57,7 +60,7 @@ struct CountrySelectionView: View {
             .onAppear { HapticsManager.shared.vibrateForSelection() }
         }
         .presentationDetents([.medium, .fraction(0.95)])
-        .presentationBackground(.thinMaterial)
+        .presentationBackground(.regularMaterial)
         .presentationCornerRadius(20)
     }
 }

@@ -23,6 +23,7 @@ struct AddAddressView: View {
     @State private var showContactsList = false
     @State private var showImagePicker = false
     @State private var showCountries = false
+    @State private var showLocationSearch = false
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var previewURL: URL?
@@ -32,13 +33,14 @@ struct AddAddressView: View {
         NavigationStack {
             VStack {
                 addressOwnerPicker
+
                 List {
                     if addressFields.addressLine1.isEmpty {
-                        LocationRecommendationView { place in
-                            useRecommendedAddress(place)
-                        }
+                        LocationRecommendationView(onAddressSelected: {
+                            useRecommendedAddress($0)
+                        }, showLocationSearch: $showLocationSearch)
                     }
-                    
+
                     addressSection
                     
                     if addressFields.addressOwner == .friend {
@@ -50,8 +52,7 @@ struct AddAddressView: View {
                             image: $addressFields.image
                         )
                     }
-                    
-                    DocumentsSectionView(documents: $addressFields.documents, previewURL: $previewURL)
+
                     Spacer(minLength: 50).listRowBackground(Color.clear)
                 }
             }
@@ -69,8 +70,14 @@ struct AddAddressView: View {
                     .disabled(!addressFields.isValid)
                     .foregroundStyle(addressFields.isValid ? tint.color.gradient : Color.secondary.gradient)
                 }
-                
-                ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
+
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        addressFields.confirmDiscard {
+                            dismiss()
+                        }
+                    }
+                }
                 ToolbarItem(placement: .principal) { Text("Add a new address").font(.headline.weight(.semibold)) }
             }
             .sheet(isPresented: $showImagePicker) { ImagePicker(image: $addressFields.image) }
@@ -81,6 +88,12 @@ struct AddAddressView: View {
                     if addressFields.image == nil {
                         addressFields.image = $0.image
                     }
+                }
+            }
+            .sheet(isPresented: $showLocationSearch) {
+                LocationSearchView { place in
+                    useSearchResult(place)
+                    showLocationSearch = false
                 }
             }
             .onAppear { HapticsManager.shared.vibrateForSelection() }
@@ -96,6 +109,16 @@ struct AddAddressView: View {
         .presentationBackground(.regularMaterial)
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
+        .confirmationDialog(
+            "Are you sure you want to discard your changes?",
+            isPresented: $addressFields.showingDiscardConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Discard Changes", role: .destructive) {
+                addressFields.onConfirmDiscard()
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
     
     var addressSection: some View {
@@ -118,7 +141,7 @@ struct AddAddressView: View {
     var addressOwnerPicker: some View {
         CustomPickerView(selection: $addressFields.addressOwner, items: ResidentType.allCases) { $0.rawValue }
             .padding(.top)
-            .padding(.horizontal)
+            .padding(.horizontal, 22)
     }
 
     private func savePlace() {
@@ -157,24 +180,27 @@ struct AddAddressView: View {
     }
     
     private func useRecommendedAddress(_ place: CLPlacemark) {
-        var line1 = ""
-        if let thoroughfare = place.thoroughfare {
-            line1 = thoroughfare
-        } else if let subthoroughfare = place.subThoroughfare {
-            line1 = subthoroughfare
-        } else if let sublocality = place.subLocality {
-            line1 = sublocality
-        }
-       
-        addressFields.addressLine1 = line1
+        addressFields.addressLine1 = place.thoroughfare ?? place.subThoroughfare ?? place.subLocality ?? ""
         addressFields.addressLine2 = place.subThoroughfare ?? ""
         addressFields.city = place.locality ?? ""
         addressFields.postalCode = place.postalCode ?? ""
-        
+
         // Find matching country in viewModel.countryFlags
         if let countryCode = place.isoCountryCode,
            let country = viewModel.countryFlags.first(where: { $0.iso2.lowercased() == countryCode.lowercased() }) {
             addressFields.country = country
+        }
+    }
+
+    private func useSearchResult(_ place: CLPlacemark) {
+        addressFields.addressLine1 = place.thoroughfare ?? place.subThoroughfare ?? place.subLocality ?? ""
+        addressFields.addressLine2 = place.subThoroughfare ?? place.subAdministrativeArea ?? ""
+        addressFields.city = place.locality ?? ""
+        addressFields.postalCode = place.postalCode ?? ""
+
+        if let countryCode = place.isoCountryCode,
+           let foundCountry = viewModel.countryFlags.first(where: { $0.iso2.lowercased() == countryCode.lowercased() }) {
+            addressFields.country = foundCountry
         }
     }
 }

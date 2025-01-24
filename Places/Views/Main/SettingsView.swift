@@ -21,6 +21,7 @@ struct SettingsView: View {
     @State private var showRateApp = false
     @State private var showShareSheet = false
     @State private var showTints = false
+    @State private var showAbout = false
     @State private var showLanguage = false
     @State private var showIcons = false
     @State private var showTips = false
@@ -53,6 +54,8 @@ struct SettingsView: View {
             .sheet(isPresented: $showTints) { TintSelectionView(selectedTint: $tint) }
             .sheet(isPresented: $showIcons) { AppIconSelectionView(selectedAppIcon: $selectedAppIcon)  }
             .sheet(isPresented: $showLanguage) { LanguageSelectionView(selectedLanguage: $language.language) }
+            .sheet(isPresented: $showAbout) { AboutView() }
+            .fullScreenCover(isPresented: $showOnboarding) { OnboardingView(hasCompletedOnboarding: $showOnboarding, hasSkip: true) }
             .sheet(isPresented: $showShareSheet) {
                 ActivityView(activityItems: [URL(string: Constants.URLs.AppStoreURL)!])
                     .presentationDetents([.medium, .large])
@@ -73,9 +76,6 @@ struct SettingsView: View {
                         store.reset()
                     }
                 }
-            }
-            .fullScreenCover(isPresented: $showOnboarding) {
-                OnboardingView(hasCompletedOnboarding: $showOnboarding, hasSkip: true)
             }
         }
         .presentationBackground(.thinMaterial)
@@ -100,7 +100,7 @@ struct SettingsView: View {
         Button {
             showOnboarding = true
         } label: {
-            SettingsRowView(icon: "info.circle.fill", title: "Show Onboarding")
+            SettingsRowView(icon: "info.circle.fill", title: "View Onboarding")
         }
     }
     
@@ -167,7 +167,9 @@ struct SettingsView: View {
                 SettingsRowView(icon: "square.and.arrow.up", title: "Share App")
             }
 
-            NavigationLink(destination: AboutView()) {
+            Button {
+                showAbout = true
+            } label: {
                 SettingsRowView(icon: "info.circle", title: "About")
             }
         }

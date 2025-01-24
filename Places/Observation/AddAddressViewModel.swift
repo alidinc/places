@@ -5,6 +5,7 @@
 //  Created by alidinc on 22/01/2025.
 //
 
+import CoreLocation
 import SwiftUI
 
 @Observable
@@ -38,10 +39,35 @@ class AddAddressViewModel {
         !country.name.isEmpty &&
         startDate <= endDate ?? Date.now
     }
-    
+
+    var showingDiscardConfirmation = false
+    var onConfirmDiscard: () -> Void = {}
+
     init() {}
-    
-    
+
+    var hasUnsavedChanges: Bool {
+        return !addressLine1.isEmpty ||
+        !addressLine2.isEmpty ||
+        !apartmentNumber.isEmpty ||
+        !city.isEmpty ||
+        !postalCode.isEmpty ||
+        country != nil ||
+        addressOwner != .mine ||
+        !ownerName.isEmpty ||
+        !relationship.isEmpty ||
+        image != nil ||
+        !documents.isEmpty
+    }
+
+    func confirmDiscard(action: @escaping () -> Void) {
+        if hasUnsavedChanges {
+            onConfirmDiscard = action
+            showingDiscardConfirmation = true
+        } else {
+            action()
+        }
+    }
+
     func create() -> Address? {
         let place = Address(
             apartmentNumber: apartmentNumber,
@@ -59,14 +85,11 @@ class AddAddressViewModel {
         
         // Create ResidentProperty if it's a friend's address
         if addressOwner == .friend {
-            if let imageData = image?.jpegData(compressionQuality: 0.8) {
-                let residentProperty = ResidentProperty(
-                    name: ownerName,
-                    relationship: relationship,
-                    image: imageData
-                )
-                place.residentProperty = residentProperty
-            }
+            place.residentProperty = ResidentProperty(
+                name: ownerName,
+                relationship: relationship,
+                image: image?.jpegData(compressionQuality: 0.8)
+            )
         }
         
         // Add documents to the place

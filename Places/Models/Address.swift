@@ -13,7 +13,7 @@ import SwiftUI
 
 @Model
 class Address: Identifiable {
-    
+
     var id: String
     var apartmentNumber: String
     var addressLine1: String
@@ -30,11 +30,12 @@ class Address: Identifiable {
     var residentProperty: ResidentProperty?
     var latitude: Double?
     var longitude: Double?
-    
+
     @Relationship(deleteRule: .cascade) var notes: [Note] = []
+    @Relationship(deleteRule: .cascade) var photos: [Photo] = []
     @Relationship(deleteRule: .cascade) var checklistItems: [ChecklistItem] = []
     @Relationship(deleteRule: .cascade) var documents: [DocumentItem] = []
-    
+
     init(
         id: String = UUID().uuidString,
         apartmentNumber: String,
@@ -72,7 +73,7 @@ class ResidentProperty: Identifiable {
     var name: String
     var relationship: String?
     var image: Data?
-    
+
     init(id: UUID = UUID(), name: String, relationship: String? = nil, image: Data? = nil) {
         self.id = id
         self.name = name
@@ -88,13 +89,45 @@ class DocumentItem: Identifiable {
     var data: Data
     var type: DocumentType
     var uploadDate: Date
-    
+
     init(id: UUID = UUID(), name: String, data: Data, type: DocumentType, uploadDate: Date = Date()) {
         self.id = id
         self.name = name
         self.data = data
         self.type = type
         self.uploadDate = uploadDate
+    }
+}
+
+@Model
+class Photo: Identifiable {
+    var id: UUID
+    var imageData: Data
+    var thumbnailData: Data
+    var caption: String?
+    var createdAt: Date
+
+    init(id: UUID = UUID(), imageData: Data, caption: String? = nil, createdAt: Date = Date()) {
+        self.id = id
+        // Compress full-size image
+        if let image = UIImage(data: imageData),
+           let compressedData = image.jpegData(compressionQuality: 0.5) {
+            self.imageData = compressedData
+        } else {
+            self.imageData = imageData
+        }
+
+        // Generate thumbnail
+        if let image = UIImage(data: imageData),
+           let thumbnail = image.preparingThumbnail(of: CGSize(width: 300, height: 300)),
+           let thumbnailData = thumbnail.jpegData(compressionQuality: 0.3) {
+            self.thumbnailData = thumbnailData
+        } else {
+            self.thumbnailData = imageData
+        }
+
+        self.caption = caption
+        self.createdAt = createdAt
     }
 }
 
@@ -105,10 +138,10 @@ enum DocumentType: String, Codable, CaseIterable {
 }
 
 enum ResidentType: String, Codable, CaseIterable {
-    
+
     case mine = "Personal"
     case friend = "Others"
-    
+
     var icon: String {
         switch self {
         case .mine:
@@ -121,7 +154,7 @@ enum ResidentType: String, Codable, CaseIterable {
 
 
 extension Address {
-    
+
     func updateCoordinates() async {
         do {
             if let location = try await CLGeocoder().geocodeAddressString(fullAddress).first?.location {
@@ -132,17 +165,17 @@ extension Address {
             print("Failed to geocode address: \(error)")
         }
     }
-    
+
     var durationInDays: Int {
         guard let start = startDate else { return 0 }
         let end = endDate ?? Date()
         return Calendar.current.dateComponents([.day], from: start, to: end).day ?? 0
     }
-    
+
     var formattedDuration: String {
         let years = durationInDays / 365
         let months = (durationInDays % 365) / 30
-        
+
         if years > 0 {
             return "\(years) year\(years > 1 ? "s" : "")\(months > 0 ? " \(months) month\(months > 1 ? "s" : "")" : "")"
         } else if months > 0 {
@@ -151,18 +184,18 @@ extension Address {
             return "\(durationInDays) day\(durationInDays != 1 ? "s" : "")"
         }
     }
-    
+
     var encodedAddress: String {
         let address = [addressLine1, addressLine2, city, postcode, country.name]
             .filter { !$0.isEmpty }
             .joined(separator: ", ")
-        
+
         return address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     }
-    
+
     var fullAddress: String {
         var addressLines = [String]()
-        
+
         if !apartmentNumber.isEmpty {
             if buildingType == .flat {
                 addressLines.append("\(buildingType.rawValue) \(apartmentNumber)")
@@ -170,7 +203,7 @@ extension Address {
                 addressLines.append(apartmentNumber)
             }
         }
-        
+
         if !addressLine1.isEmpty {
             if !addressLine2.isEmpty {
                 addressLines.append("\(addressLine2) \(addressLine1)")
@@ -178,43 +211,43 @@ extension Address {
                 addressLines.append(addressLine1)
             }
         }
-        
+
         if !city.isEmpty {
             addressLines.append(city)
         }
-        
+
         if !postcode.isEmpty {
             addressLines.append(postcode)
         }
-        
+
         if  !country.name.isEmpty {
             addressLines.append(country.name)
         }
-        
+
         return addressLines.joined(separator: ", ")
     }
-    
+
     var mainAddressDetails: String {
         var mainAddressDetails = [String]()
-        
+
         if !apartmentNumber.isEmpty {
             mainAddressDetails.append("\(buildingType == .flat ? "Flat " : "")\(apartmentNumber)")
         }
-        
+
         if !addressLine1.isEmpty {
             mainAddressDetails.append(addressLine1)
         }
-        
+
         if !addressLine2.isEmpty {
             mainAddressDetails.append(addressLine2)
         }
-        
+
         return mainAddressDetails.joined(separator: ", ")
     }
-    
+
     var localityDetails: String {
         var localityDetails = [String]()
-        
+
         if !city.isEmpty {
             localityDetails.append(city)
         }
@@ -224,32 +257,32 @@ extension Address {
         if !postcode.isEmpty {
             localityDetails.append(postcode)
         }
-        
+
         if !country.name.isEmpty {
             localityDetails.append(country.name)
         }
-        
+
         return localityDetails.joined(separator: ", ")
     }
-    
-    
+
+
     var durationString: String {
         guard let start = startDate else {
             return ""
         }
-        
+
         // If endDate is nil, use the current date for calculation
         let end = endDate ?? Date()
-        
+
         let components = Calendar.current.dateComponents([.year, .month, .day], from: start, to: end)
-        
+
         // Format the duration string (this is just an example)
         let years = components.year ?? 0
         let months = components.month ?? 0
         let days = components.day ?? 0
-        
+
         var parts: [String] = []
-        
+
         if years > 0 {
             parts.append("\(years) year\(years > 1 ? "s" : "")")
         }
@@ -259,7 +292,7 @@ extension Address {
         if days > 0 && years == 0 { // Only show days if less than a month/year
             parts.append("\(days) day\(days > 1 ? "s" : "")")
         }
-        
+
         if parts.isEmpty {
             return "Less than a day"
         } else {

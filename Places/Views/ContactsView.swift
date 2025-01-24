@@ -42,55 +42,55 @@ struct ContactsView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 } else {
-                    List {
-                        ForEach(filteredContacts, id: \.id) { contact in
-                            Button {
-                                contactSelected(contact)
-                                dismiss()
-                            } label: {
-                                HStack(spacing: 12) {
-                                    if let image = contact.image {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 40, height: 40)
-                                            .clipShape(Circle())
-                                    } else {
-                                        Image(systemName: "person.circle.fill")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 40, height: 40)
-                                            .foregroundStyle(.gray)
+                    VStack {
+                        CustomSearchBar(text: $searchText, placeholder: "Search contacts", onTextChanged: {})
+                        List {
+                            ForEach(filteredContacts, id: \.id) { contact in
+                                Button {
+                                    contactSelected(contact)
+                                    dismiss()
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        if let image = contact.image {
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 40, height: 40)
+                                                .clipShape(Circle())
+                                        } else {
+                                            Image(systemName: "person.circle.fill")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 40, height: 40)
+                                                .foregroundStyle(.gray)
+                                        }
+
+                                        VStack(alignment: .leading) {
+                                            Text(contact.name)
+                                                .font(.headline)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                                            Text(contact.phone)
+                                                .foregroundStyle(tint.color)
+                                                .font(.caption.weight(.medium))
+                                        }
                                     }
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(contact.name)
-                                            .font(.headline)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                        
-                                        Text(contact.phone)
-                                            .foregroundStyle(tint.color)
-                                            .font(.caption.weight(.medium))
-                                    }
+                                    .hSpacing(.leading)
                                 }
-                                .hSpacing(.leading)
                             }
+                            .listRowBackground(StyleManager.shared.listRowBackground)
+                            .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
                         }
-                        .listRowBackground(StyleManager.shared.listRowBackground)
-                        .listRowSeparatorTint(StyleManager.shared.listRowSeparator)
+                        .scrollContentBackground(.hidden)
+                        .padding(.top, -20)
                     }
-                    .scrollContentBackground(.hidden)
-                    .padding(.top, -20)
-                    .searchable(text: $searchText,
-                               placement: .navigationBarDrawer(displayMode: .always),
-                               prompt: "Search contacts")
                 }
             }
             .navigationTitle("Choose a contact name")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear(perform: contactsManager.fetchContacts)
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
             .onAppear { HapticsManager.shared.vibrateForSelection() }
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { DismissButton() } }
         }
         .presentationDetents([.medium, .fraction(0.95)])
         .presentationBackground(.thinMaterial)

@@ -12,12 +12,12 @@ struct PlacesApp: App {
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showOnboarding = false
-    
+    @State private var hudState = HUDState()
+
     var countriesVm = CountryViewModel()
     var language = LanguageManager()
     var contacts = ContactsManager()
-    @State var hudState = HUDState()
-    var locationsManager = LocationsManager()
+    var locations = LocationsManager()
     
     var body: some Scene {
         WindowGroup {
@@ -45,7 +45,7 @@ struct PlacesApp: App {
                         .transition(.move(edge: .trailing))
                 }
             }
-            .environment(locationsManager)
+            .environment(locations)
         }
     }
 }

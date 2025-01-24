@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 import UniformTypeIdentifiers
 import QuickLook
 
@@ -31,8 +32,9 @@ struct EditAddressView: View {
                 List {
                     addressDetails
                     ownerTypeView
-                    documentsSection
                     checklistSection
+                    documentsSection
+                    AttachmentsSectionView(place: place)
                     postcodeDetails
                     deleteButton
                     
@@ -94,7 +96,7 @@ struct EditAddressView: View {
                         }
                     }
                 }
-                ToolbarItem(placement: .principal) { Text(place.mainAddressDetails).font(.headline.weight(.semibold)) }
+                ToolbarItem(placement: .principal) { Text(place.addressLine1).font(.headline.weight(.semibold)) }
             }
         }
         .interactiveDismissDisabled()
@@ -145,7 +147,7 @@ struct EditAddressView: View {
     private var addressTypePicker: some View {
         CustomPickerView(selection: $editVM.residentType, items: ResidentType.allCases) { $0.rawValue }
             .padding(.top)
-            .padding(.horizontal)
+            .padding(.horizontal, 22)
     }
     
     private var addressDetails: some View {
